@@ -54,7 +54,7 @@ export default async function (req, res) {
       messages: messages,
       frequency_penalty: 0,
       presence_penalty: 0,
-      max_tokens: 350,
+      max_tokens: 500,
       top_p: 1,
       temperature: 0.7,
     })
