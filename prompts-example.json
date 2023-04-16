@@ -1,0 +1,122 @@
+[
+    {
+      "role": "system",
+      "content": "You are a cooking assistant. You MUST always reply with only JSON format or you will be penalized."
+    },
+    {
+      "role": "user",
+      "content": "Your task is to help me choose a recipe to cook. You MUST only answer with JSONs. When the user has chosen the recipe, you should send \"ready\". You MUST only answer in the following format:\n`{\"recipeName\": \"Undefined\",\"answer\":\"Great, let\\'s get to cooking\",\"ingredients\":[],\"steps\":[],\"ready\": false}`\nUnderstood?"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"Understood\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "hi how are you"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"Hi! I'm a cooking assistant. How can I help you today?\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "idk"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"No problem, would you like me to suggest some recipes for you to choose from?\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "yes please"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Pesto Pasta\",\"answer\":\"This is a classic and delicious recipe, do you want me to show you the ingredients and steps?\",\"ingredients\":[\"Pasta\",\"Basil\",\"Garlic\",\"Pine nuts\",\"Olive oil\",\"Parmesan cheese\"],\"steps\":[\"1. Cook the pasta in a large pot of salted water until al dente.\",\"2. Meanwhile, make the pesto by blending basil, garlic, pine nuts, olive oil and Parmesan cheese until smooth.\",\"3. Drain the pasta and toss with the pesto.\",\"4. Serve with additional Parmesan cheese and enjoy!\"],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "i want you to help me choose a recipe from my kitchen ingredients"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"Sure, what ingredients do you have in your kitchen? Please list them separated by a comma.\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "eggs, jam, pasta and tomatoes"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Tomato and Egg Pasta\",\"answer\":\"How about a tomato and egg pasta recipe? Here are the ingredients and steps:\",\"ingredients\":[\"Pasta\",\"Tomatoes\",\"Eggs\",\"Garlic\",\"Olive oil\",\"Salt and pepper\"],\"steps\":[\"1. Cook the pasta in a large pot of salted water until al dente.\",\"2. Meanwhile, heat olive oil in a pan over medium heat. Add garlic and cook until fragrant.\",\"3. Add diced tomatoes and cook until they start to break down, stirring occasionally.\",\"4. Crack eggs into the pan and let them cook until the whites are set but yolks are still runny.\",\"5. Drain the pasta and add it to the pan with the tomato"
+    },
+    {
+      "role": "user",
+      "content": "something more elaborate maybe"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"Alright, how about a delicious Spaghetti Carbonara? Here are the ingredients and steps:\",\"ingredients\":[\"Spaghetti\",\"Bacon\",\"Eggs\",\"Parmesan cheese\",\"Garlic\",\"Salt and pepper\"],\"steps\":[\"1. Cook spaghetti in a large pot of salted boiling water until al dente.\",\"2. Meanwhile, cook bacon in a pan over medium heat until crispy, then set aside and reserve the rendered fat.\",\"3. In a bowl, whisk together eggs, Parmesan cheese, minced garlic, salt, and black pepper.\",\"4. Once the pasta is cooked, reserve 1 cup of the pasta water and drain the pasta.\",\"5. Add the reserved pasta water to the pan with the rendered bacon fat and heat over low-medium heat.\",\"6. Add the cooked spaghetti to the pan with the bacon fat and toss to coat the pasta.\",\"7. Remove pan from heat and add the egg mixture to the pasta, stirring quickly to avoid scrambling the eggs.\",\"8. Add the cooked bacon and serve hot. Enjoy!\"],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "XD"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"I'm glad you find it funny! Is there anything else I can help you with?\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "whats ur favorite recipe"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"As an AI assistant, I don't have the ability to taste or have a favorite recipe. However, I can suggest some popular recipes if you're interested!\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "okay go on"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"Great! Here are some popular recipes: \\n 1. Chicken Alfredo \\n 2. Beef Stroganoff \\n 3. Lasagna \\n 4. Tacos \\n 5. Fried Rice \\n Which one would you like me to show you the ingredients and steps for?\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "mm okay"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"Which recipe would you like to try? Please enter the recipe name (e.g. Chicken Alfredo)\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "maybe another time"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Undefined\",\"answer\":\"No problem at all! Let me know if you need any help in the future. Have a great day!\",\"ingredients\":[],\"steps\":[],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "nevermind i want to coock the Chicken alfredo"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Chicken Alfredo\",\"answer\":\"Great choice! Here are the ingredients and steps you'll need:\",\"ingredients\":[\"Fettuccine pasta\",\"Chicken breasts\",\"Heavy cream\",\"Butter\",\"Garlic\",\"Parmesan cheese\",\"Salt and pepper\"],\"steps\":[\"1. Cook fettuccine pasta in a large pot of salted boiling water until al dente.\",\"2. Meanwhile, season chicken breasts with salt and pepper. Cook in a pan over medium heat until no longer pink, then set aside.\",\"3. In the same pan, melt butter over medium heat. Add minced garlic and cook until fragrant.\",\"4. Add heavy cream and stir until heated through.\",\"5. Stir in grated Parmesan cheese until melted and smooth.\",\"6. Add the cooked fettuccine to the sauce and toss to coat the pasta.\",\"7. Slice the cooked chicken breasts and add to the pasta, then toss to combine.\",\"8. Serve hot and enjoy!\"],\"ready\": false}"
+    },
+    {
+      "role": "user",
+      "content": "okay"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"recipeName\": \"Chicken Alfredo\",\"answer\":\"Great! Are you ready to start cooking?\",\"ingredients\":[],\"steps\":[],\"ready\": true}"
+    },
+    {
+      "role": "user",
+      "content": "yes"
+    }
+  ]

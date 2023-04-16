@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+serviceaccount.json
 
 # testing
 /coverage
