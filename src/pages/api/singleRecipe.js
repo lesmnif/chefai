@@ -18,7 +18,6 @@ export default async function (req, res) {
 
   const query = req.body.query || []
 
-
   if (query.length < 5) {
     res.status(400).json({
       error: {
@@ -49,15 +48,13 @@ export default async function (req, res) {
     }
   ]
 
-
-  console.log("wtf", messages)
   try {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: messages,
       frequency_penalty: 0,
       presence_penalty: 0,
-      max_tokens: 400,
+      max_tokens: 200,
       top_p: 1,
       temperature: 0.7,
     })
