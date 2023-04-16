@@ -43,9 +43,9 @@ export default async function (req, res) {
       content: `{"recipeName": "Undefined","answer":"Understood","ingredients":[],"steps":[],"ready": false}`,
     },
     {
-        role: "user",
-        content: query
-    }
+      role: "user",
+      content: query,
+    },
   ]
 
   try {
@@ -54,7 +54,7 @@ export default async function (req, res) {
       messages: messages,
       frequency_penalty: 0,
       presence_penalty: 0,
-      max_tokens: 200,
+      max_tokens: 350,
       top_p: 1,
       temperature: 0.7,
     })
