@@ -52,7 +52,6 @@ export default function Home() {
       const json = JSON.parse(data.result)
       setResult(json)
       fetchImage(json.recipeName)
-      setQuery("")
     } catch (error) {
       setGettingResponse(false)
       // Consider implementing your own error handling logic here
