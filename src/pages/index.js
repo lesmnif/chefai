@@ -130,11 +130,11 @@ export default function Home() {
           <h1 className=" mb-10 text-lg font-bold tracking-tight text-gray-900 sm:text-lg">
             Or else
           </h1>
-          <Link href={"transcribe/en-US"}>
+          {/* <Link href={"transcribe/en-US"}>
             <button className="rounded-full  bg-blue-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600">
               Help me choose a recipe
             </button>
-          </Link>
+          </Link> */}
         </main>
       )}
     </div>
