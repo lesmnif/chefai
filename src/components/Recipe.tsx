@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react"
 import useSpeechToText from "react-hook-speech-to-text"
+import Loader from "./Loader"
 
-export default function Recipe({
-  ingredients,
-  steps,
-  recipeName,
-  language,
-  base64,
-}) {
+export default function Recipe({ ingredients, steps, recipeName, language }) {
+  const [base64, setBase64] = useState("")
   const [gptResults, setGptResults] = useState([])
   const [gettingResponse, setGettingResponse] = useState(false)
   const [conversationPlaying, setConversationPlaying] = useState(false)
   const [introMessage, setIntroMessage] = useState(null)
+
+  const fetchImage = async (recipeName) => {
+    const res = await fetch("/api/text-to-image", {
+      method: "POST",
+      body: JSON.stringify({
+        prompt: `A tasty ${recipeName} dish`,
+      }),
+    })
+
+    const data = await res.json()
+    console.log("data", data)
+    setBase64(data.base64)
+  }
 
   async function gptResponse(questions) {
     try {
@@ -54,7 +63,7 @@ export default function Recipe({
       }, 14000)
     } catch (error) {
       // Consider implementing your own error handling logic here
-      
+
       alert("ask again please")
     }
   }
@@ -129,8 +138,15 @@ export default function Recipe({
     gptResponse(results)
   }, [results])
 
+  useEffect(() => {
+    if (recipeName) {
+      fetchImage(recipeName)
+      return
+    }
+  }, [])
+
   return (
-    <div className="bg-white">
+    <div className="bg-white h-screen">
       <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -181,12 +197,16 @@ export default function Recipe({
             </div>
           </dl>
         </div>
-        <div className="">
-          <img
-            alt="recipePhoto"
-            src={"data:image/png;base64," + base64}
-            className="rounded-lg bg-gray-100"
-          />
+        <div className="flex justify-center items-center">
+          {base64 ? (
+            <img
+              alt="recipePhoto"
+              src={"data:image/png;base64," + base64}
+              className="rounded-lg bg-gray-100"
+            />
+          ) : (
+            <Loader cooking={true} />
+          )}
           {/* <img
             src="https://tailwindui.com/img/ecommerce-images/product-feature-03-detail-01.jpg"
             alt="Walnut card tray with white powder coated steel divider and 3 punchout holes."

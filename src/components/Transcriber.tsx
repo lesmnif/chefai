@@ -170,18 +170,17 @@ export default function Transcriber({ language }) {
     )
 
   return (
-    <main className="h-screen text-center my-20">
+    <main className="h-screen text-center">
       {isReady ? (
         <Recipe
           language={"en-US"}
           ingredients={ingredients}
           steps={steps}
           recipeName={recipeName}
-          base64={base64}
         />
       ) : (
         <div>
-          <h1 className="mb-5 px-3.5">
+          <h1 className="mb-5 px-3.5 mt-14">
             <p className=" mx-10">
               {language === "es-ES" ? "ESPAÑOL" : "ENGLISH"}{" "}
             </p>
