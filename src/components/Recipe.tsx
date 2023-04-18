@@ -54,7 +54,7 @@ export default function Recipe({
       }, 14000)
     } catch (error) {
       // Consider implementing your own error handling logic here
-      console.error(error)
+      
       alert("ask again please")
     }
   }

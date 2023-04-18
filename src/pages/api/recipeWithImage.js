@@ -16,15 +16,12 @@ export default async function (req, res) {
     return
   }
 
-  const questions = req.body.questions || []
-  const gptResponses = req.body.gptResponses || []
-  const recipeName = req.body.recipeName
-  const steps = req.body.steps || []
-  
-  if (questions.length === 0) {
+  const query = req.body.query || []
+
+  if (query.length < 5) {
     res.status(400).json({
       error: {
-        message: "Please enter a valid question",
+        message: "Please enter at least a 5 characters recipe",
       },
     })
     return
@@ -32,45 +29,48 @@ export default async function (req, res) {
   const messages = [
     {
       role: "system",
-      content: `You are a cooking assistant. You're going to help me cook on the phone step by step.`,
+      content: `You are a cooking assistant. You MUST only reply with a JSON format.`,
     },
     {
       role: "user",
-      content: `Your task is to help me cook the following ${recipeName} recipe: ${steps}. You MUST go step by step and MUST give concise answers and dont keep going until you're sure I have finished the previous step.`,
+      content: `You MUST give me a JSON with the following format for the recipe asked:
+      {"recipeName": "Spaghetti carbonara","GPTAnswer":"I'm going to give you only a recipe in JSON format", "ingredients":["eggs","jam"],"steps":["first boil water","put pasta"]}
+      
+      Understood?`,
     },
     {
       role: "assistant",
-      content: `Sure, I'm going to help you cook this recipe step by step with concise answers, are you ready to start?`,
+      content: `{"recipeName": "Undefined","answer":"Understood","ingredients":[],"steps":[],"ready": false}`,
+    },
+    {
+      role: "user",
+      content: query,
     },
   ]
 
-  questions.forEach((question, index) => {
-    return gptResponses[index - 1]
-      ? messages.push(
-          { role: "assistant", content: gptResponses[index - 1] },
-          {
-            role: "user",
-            content: question.transcript,
-          }
-        )
-      : messages.push({
-          role: "user",
-          content: question.transcript,
-        })
-  })
-  console.log("wtf", messages)
   try {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: messages,
       frequency_penalty: 0,
       presence_penalty: 0,
-      max_tokens: 150,
+      max_tokens: 500,
       top_p: 1,
       temperature: 0.7,
     })
-    res.status(200).json({ result: completion.data.choices[0].message.content })
-  } catch (error) {
+
+    const image = await fetch("/api/text-to-image", {
+        method: "POST",
+        body: JSON.stringify({
+          prompt: `A tasty ${completion.data.choices[0].message.content.recipeName} dish`,
+        }),
+      })
+
+    res.status(200).json({ result: completion.data.choices[0].message.content, image: image })
+    
+    
+
+} catch (error) {
     // Consider adjusting the error handling logic for your use case
     if (error.response) {
       console.error(error.response.status, error.response.data)

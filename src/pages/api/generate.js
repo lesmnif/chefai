@@ -18,6 +18,8 @@ export default async function (req, res) {
 
   const questions = req.body.questions || []
   const gptResponses = req.body.gptResponses || []
+  const error = req.body.error || false
+
   if (questions.length === 0) {
     res.status(400).json({
       error: {
@@ -35,12 +37,12 @@ export default async function (req, res) {
     {
       role: "user",
       content:
-        'Your task is to help me choose a recipe to cook. When ingredients and steps are sent, "ready" must be true. You MUST only answer in the following JSON format:\n`{"recipeName": "Undefined","GPTanswer":"Sure, How can I help you choosing a recipe","ingredients":[],"steps":[],"ready": false}`\nUnderstood?',
+        'Your task is to help me choose a recipe to cook. If there\'s "ingredients" and "steps" there MUST be a "recipeName". You MUST only answer in the following JSON format:\n`{"recipeName": "Spaghetti Carbonara","GPTanswer":"How about spaghetti carbonara?","ingredients":["spaghetti", "eggs"],"steps":["boil water","season"]}`\nUnderstood?',
     },
     {
       role: "assistant",
       content:
-        '{"recipeName": "Undefined","GPTanswer":"Understood, Do you have any recipe in mind? If not, what ingredients do you have available in your kitchen?","ingredients":[],"steps":[],"ready": false}',
+        '{"recipeName": "Undefined","GPTanswer":"Understood","ingredients":[],"steps":[]}',
     },
   ]
 
@@ -50,12 +52,16 @@ export default async function (req, res) {
           { role: "assistant", content: gptResponses[index - 1] },
           {
             role: "user",
-            content: `${question.transcript}, your response MUST be only a JSON.`,
+            content: error
+              ? `You didn't reply with only a JSON as instructed so I could not read your message, you are penalized with one less point. Try again and respond to the following question with only a JSON:${question.transcript}`
+              : `${question.transcript}, your response MUST be only a JSON.`,
           }
         )
       : messages.push({
           role: "user",
-          content: `${question.transcript}, your response MUST be only a JSON.`,
+          content: error
+            ? `You didn't reply with only a JSON as instructed so I could not read your message, you are penalized with one less point. Try again and respond to the following question with only a JSON:${question.transcript}`
+            : `${question.transcript}, your response MUST be only a JSON.`,
         })
   })
   console.log("wtf", messages)
@@ -65,7 +71,7 @@ export default async function (req, res) {
       messages: messages,
       frequency_penalty: 0,
       presence_penalty: 0,
-      max_tokens: 427,
+      max_tokens: 600,
       top_p: 1,
       temperature: 0.7,
     })
