@@ -1,13 +1,15 @@
 import Head from "next/head"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import styles from "../styles/Home.module.css"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import Loader from "../components/Loader"
+import ParseRecipe from "../functions/ParseRecipe"
 
 const Recipe = dynamic(() => import("../components/Recipe"), {
   ssr: false,
 })
+
 export default function Home() {
   const [question, setQuestion] = useState("")
   const [result, setResult] = useState()

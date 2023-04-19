@@ -18,9 +18,8 @@ export default async function (req, res) {
 
   const questions = req.body.questions || []
   const gptResponses = req.body.gptResponses || []
-  const recipeName = req.body.recipeName
-  const steps = req.body.steps || []
-  
+  const error = req.body.error || false
+
   if (questions.length === 0) {
     res.status(400).json({
       error: {
@@ -32,15 +31,18 @@ export default async function (req, res) {
   const messages = [
     {
       role: "system",
-      content: `You are a cooking assistant. You're going to help me cook on the phone step by step.`,
+      content:
+        "You are a cooking assistant. You must assist me in choosing a recipe.",
     },
     {
       role: "user",
-      content: `Your task is to help me cook the following ${recipeName} recipe: ${steps}. You MUST go step by step and MUST give concise answers and dont keep going until you're sure I have finished the previous step.`,
+      content:
+        'Your task is to help me choose a recipe to cook. You must ask me about my preferences and ingredients that I have available in my kitchen. When the recipe is given you MUST give the ingredients and instructions with the word followed by ":" like "Ingredients:". Also if Ingredients are provided Instructions MUST always be provided. ',
     },
     {
       role: "assistant",
-      content: `Sure, I'm going to help you cook this recipe step by step with concise answers, are you ready to start?`,
+      content:
+        "Hi, I'm here to help you cook tasty food! Do you have any recipe in mind? If not, any preferences or available ingredients in your kitchen?",
     },
   ]
 
@@ -50,12 +52,12 @@ export default async function (req, res) {
           { role: "assistant", content: gptResponses[index - 1] },
           {
             role: "user",
-            content: question.transcript,
+            content: `${question.transcript}`,
           }
         )
       : messages.push({
           role: "user",
-          content: question.transcript,
+          content:`${question.transcript}`,
         })
   })
   console.log("wtf", messages)
@@ -65,7 +67,7 @@ export default async function (req, res) {
       messages: messages,
       frequency_penalty: 0,
       presence_penalty: 0,
-      max_tokens: 200,
+      max_tokens: 600,
       top_p: 1,
       temperature: 0.7,
     })

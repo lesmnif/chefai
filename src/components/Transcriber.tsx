@@ -1,37 +1,23 @@
 import React, { useEffect, useState } from "react"
 import useSpeechToText from "react-hook-speech-to-text"
 import styles from "../styles/Home.module.css"
-import Recipe from "./Recipe"
+import RecipeSelection from "./RecipeSelected"
+import ParseRecipe from "../functions/ParseRecipe"
 
 export default function Transcriber({ language }) {
   const [gptResults, setGptResults] = useState([])
   const [gettingResponse, setGettingResponse] = useState(false)
   const [conversationPlaying, setConversationPlaying] = useState(false)
   const [introMessage, setIntroMessage] = useState(null)
-  const [errorsCounter, setErrorsCounter] = useState(0)
-  const [ingredients, setIngredients] = useState([])
-  const [steps, setSteps] = useState([])
-  const [recipeName, setRecipeName] = useState([])
+  const [recipe, setRecipe] = useState(null)
+  const [recipeInfo, setRecipeInfo] = useState(null)
   const [isReady, setIsReady] = useState(false)
-  const [base64, setBase64img] = useState("")
-
-  const fetchImage = async (recipeName) => {
-    const res = await fetch("/api/text-to-image", {
-      method: "POST",
-      body: JSON.stringify({
-        prompt: `A tasty ${recipeName} dish`,
-      }),
-    })
-
-    const data = await res.json()
-    console.log("data", data)
-    setBase64img(data.base64)
-  }
+  const [isChoosenRecipe, setIsChoosenRecipe] = useState(false)
 
   async function gptResponse(questions, error) {
     try {
       setGettingResponse(true)
-      const response = await fetch("/api/generate", {
+      const response = await fetch("/api/testing", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,45 +36,47 @@ export default function Transcriber({ language }) {
           new Error(`Request failed with status ${response.status}`)
         )
       }
-
-      console.log("lol", data.result)
-      const json = JSON.parse(data.result) || undefined
-      console.log("wtfxd", json, data.result)
-      setGptResults(gptResults.concat(json.GPTanswer))
-      setRecipeName(json.recipeName)
-      setIngredients(json.ingredients)
-      setSteps(json.steps)
-      setGettingResponse(false)
-      setErrorsCounter(0)
-      const utterance = new SpeechSynthesisUtterance(json.GPTanswer)
-      utterance.onend = () => startSpeechToText()
-      speechSynthesis.speak(utterance)
-      let r = setInterval(() => {
-        if (!speechSynthesis.speaking) {
-          clearInterval(r)
-        } else {
-          speechSynthesis.pause()
-          speechSynthesis.resume()
-        }
-      }, 14000)
-    } catch (error) {
-      if (errorsCounter >= 5) {
-        return window.location.reload()
+      const recipe = ParseRecipe(data.result)
+      console.log("what is going on", recipe, data.result)
+      if (recipe.ingredients.length !== 0 && recipe.instructions.length !== 0) {
+        setIsChoosenRecipe(true)
+        setRecipeInfo(data.result)
+        setRecipe(recipe)
+        const utterance = new SpeechSynthesisUtterance(recipe.intro)
+        speechSynthesis.speak(utterance)
+        setConversationPlaying(false)
+        let r = setInterval(() => {
+          if (!speechSynthesis.speaking) {
+            clearInterval(r)
+          } else {
+            speechSynthesis.pause()
+            speechSynthesis.resume()
+          }
+        }, 14000)
+      } else {
+        setIsChoosenRecipe(true)
+        const utterance = new SpeechSynthesisUtterance(data.result)
+        utterance.onend = () => startSpeechToText()
+        speechSynthesis.speak(utterance)
+        let r = setInterval(() => {
+          if (!speechSynthesis.speaking) {
+            clearInterval(r)
+          } else {
+            speechSynthesis.pause()
+            speechSynthesis.resume()
+          }
+        }, 14000)
       }
+      setGptResults(gptResults.concat(data.result))
+      setGettingResponse(false)
+    } catch (error) {
       if (error.name === "SyntaxError") {
         console.log("U got in here :)))")
-        console.log(errorsCounter)
-        setErrorsCounter(errorsCounter + 1)
         return gptResponse(results, true)
       }
       // Consider implementing your own error handling logic here
       alert(error.message)
     }
-  }
-
-  const handleReadyButton = () => {
-    fetchImage(recipeName)
-    return setIsReady
   }
 
   const firstMessage = () => {
@@ -172,11 +160,11 @@ export default function Transcriber({ language }) {
   return (
     <main className="h-screen text-center">
       {isReady ? (
-        <Recipe
+        <RecipeSelection
           language={"en-US"}
-          ingredients={ingredients}
-          steps={steps}
-          recipeName={recipeName}
+          ingredients={recipe.ingredients}
+          steps={recipe.instructions}
+          recipeInfo={recipeInfo}
         />
       ) : (
         <div>
@@ -184,7 +172,7 @@ export default function Transcriber({ language }) {
             <p className=" mx-10">
               {language === "es-ES" ? "ESPAÑOL" : "ENGLISH"}{" "}
             </p>
-            {recipeName && ingredients.length !== 0 && steps.length !== 0 && (
+            {recipe && (
               <button
                 className={
                   "rounded-full  bg-red-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600"
@@ -206,6 +194,7 @@ export default function Transcriber({ language }) {
                 : "rounded-full  bg-red-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600"
             }
             onClick={handleButtonClick}
+            disabled={gettingResponse}
           >
             {conversationPlaying
               ? "Pause conversation"
@@ -216,30 +205,33 @@ export default function Transcriber({ language }) {
           {introMessage && <p> ASSISTANT: {introMessage}</p>}
           {results.map((result, index) => (
             <div key={result.timestamp}>
-              <p key={result.timestamp}>QUESTION: {result.transcript}</p>
-              {gptResults[index] && <p> ASSISTANT: {gptResults[index]}</p>}
+              <p>QUESTION: {result.transcript}</p>
+              {gptResults[index] && (
+                <p>
+                  {" "}
+                  ASSISTANT:{" "}
+                  {recipe && isChoosenRecipe ? recipe.intro : gptResults[index]}
+                </p>
+              )}
             </div>
           ))}
           {interimResult && <p>{interimResult}</p>}
-          {ingredients?.length !== 0 && steps?.length !== 0 && (
+          {recipe && (
             <div>
-              <h2 className="text-xl mt-10 font-bold tracking-tight text-gray-900 sm:text-2xl">
-                {recipeName && recipeName}
-              </h2>
               <dl className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
                 <div className="border-t border-gray-200 pt-4">
                   <dt className="font-medium text-gray-900">Ingredients</dt>
-                  {ingredients.map((ingredient) => (
+                  {recipe.ingredients?.map((ingredient) => (
                     <dd key={ingredient} className="mt-2 text-sm text-gray-500">
-                      · {ingredient}
+                      {ingredient}
                     </dd>
                   ))}
                 </div>
                 <div className="border-t border-gray-200 pt-4">
                   <dt className="font-medium text-gray-900">Steps</dt>
-                  {steps.map((step) => (
+                  {recipe.instructions?.map((step) => (
                     <dd key={step} className="mt-2 text-sm text-gray-500">
-                      · {step}
+                      {step}
                     </dd>
                   ))}
                 </div>

@@ -29,11 +29,12 @@ const generateImage = async (prompt: string): Promise<GenerationResponse> => {
           },
         ],
         cfg_scale: 7,
-        clip_guidance_preset: "FAST_BLUE",
+        style_preset: "enhance",
+        clip_guidance_preset: "SLOW",
         height: 512,
         width: 512,
         samples: 1,
-        steps: 30,
+        steps: 50,
       }),
     }
   )
