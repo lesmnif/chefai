@@ -4,7 +4,7 @@ import styles from "../styles/Home.module.css"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import Loader from "../components/Loader"
-import ParseRecipe from "../functions/ParseRecipe"
+import GetTimers from "../functions/GetTimers"
 
 const Recipe = dynamic(() => import("../components/Recipe"), {
   ssr: false,

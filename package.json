@@ -22,7 +22,9 @@
     "react-dom": "18.2.0",
     "react-hook-speech-to-text": "^0.8.0",
     "react-router-dom": "^6.10.0",
-    "touch-cli": "^0.0.1"
+    "react-timer-hook": "^3.0.5",
+    "touch-cli": "^0.0.1",
+    "use-timer": "^2.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.34",

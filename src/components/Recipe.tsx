@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react"
 import useSpeechToText from "react-hook-speech-to-text"
 import Loader from "./Loader"
+import GetTimers from "../functions/GetTimers"
+import TimersButtons from "./TimersButtons"
 
 export default function Recipe({ ingredients, steps, recipeName, language }) {
   const [base64, setBase64] = useState("")
@@ -8,6 +10,7 @@ export default function Recipe({ ingredients, steps, recipeName, language }) {
   const [gettingResponse, setGettingResponse] = useState(false)
   const [conversationPlaying, setConversationPlaying] = useState(false)
   const [introMessage, setIntroMessage] = useState(null)
+  const [timers, setTimers] = useState([])
 
   const fetchImage = async (recipeName) => {
     const res = await fetch("/api/text-to-image", {
@@ -139,16 +142,23 @@ export default function Recipe({ ingredients, steps, recipeName, language }) {
   }, [results])
 
   useEffect(() => {
+    if (steps) {
+      const timers = GetTimers(steps)
+      setTimers(timers)
+    }
     if (recipeName) {
       fetchImage(recipeName)
       return
     }
   }, [])
 
+  console.log(timers)
+
   return (
     <div className="bg-white h-screen">
       <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
         <div>
+          <TimersButtons timers={timers} />
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             {recipeName}
             <button
