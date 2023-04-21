@@ -1,4 +1,4 @@
-import MyTimer from "./Timer"
+import Timer from "./Timer"
 
 export default function TimersButtons({ timers }) {
   console.log("what", timers)
@@ -22,8 +22,7 @@ export default function TimersButtons({ timers }) {
                 : "relative inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
             }
           >
-            {timer}m
-            <MyTimer timer={timer} />
+            <Timer initialTime={timer * 60} />
           </button>
         )
       })}

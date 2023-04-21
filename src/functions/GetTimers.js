@@ -22,5 +22,6 @@ export default function GetTimers(recipeSteps) {
       }
     }
   }
-  return times
+  const filteredTimes = times.filter((time) => time[0] !== " ")
+  return filteredTimes.map((time) => parseInt(time))
 }
