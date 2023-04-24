@@ -29,18 +29,15 @@ export default async function (req, res) {
   const messages = [
     {
       role: "system",
-      content: `You are a cooking assistant. You MUST only reply with a JSON format.`,
+      content: `You MUST give me a recipe from a sentence.`,
     },
     {
       role: "user",
-      content: `You MUST give me a JSON with the following format for the recipe asked:
-      {"recipeName": "Spaghetti carbonara","GPTAnswer":"I'm going to give you only a recipe in JSON format", "ingredients":["eggs","jam"],"steps":["first boil water","put pasta"]}
-      
-      Understood?`,
+      content: `You MUST give me a recipe from one sentence, giving it a name, ingredients and instructions. You MUST give the ingredients and instructions with the word followed by ":" like "Ingredients:".`,
     },
     {
       role: "assistant",
-      content: `{"recipeName": "Undefined","answer":"Understood","ingredients":[],"steps":[],"ready": false}`,
+      content: `Understood. What's the sentence ?`,
     },
     {
       role: "user",

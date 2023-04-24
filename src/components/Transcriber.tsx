@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react"
 import useSpeechToText from "react-hook-speech-to-text"
-import styles from "../styles/Home.module.css"
 import RecipeSelection from "./RecipeSelected"
 import ParseRecipe from "../functions/ParseRecipe"
 
@@ -158,7 +157,7 @@ export default function Transcriber({ language }) {
     )
 
   return (
-    <main className="h-screen text-center">
+    <main className="text-center">
       {isReady ? (
         <RecipeSelection
           language={"en-US"}
@@ -168,7 +167,7 @@ export default function Transcriber({ language }) {
         />
       ) : (
         <div>
-          <h1 className="mb-5 px-3.5 mt-14">
+          <h1 className="mb-5 px-3.5 pt-14">
             <p className=" mx-10">
               {language === "es-ES" ? "ESPAÑOL" : "ENGLISH"}{" "}
             </p>

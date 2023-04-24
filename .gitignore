@@ -6,6 +6,8 @@
 .pnp.js
 serviceaccount.json
 .env
+.env.local
+
 # testing
 /coverage
 
