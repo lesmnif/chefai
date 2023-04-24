@@ -1,6 +1,5 @@
 import "../styles/globals.css"
 import toast, { Toaster } from "react-hot-toast"
-import { supabase } from "../lib/supabaseClient"
 import { Auth } from "@supabase/auth-ui-react"
 import { ThemeSupa } from "@supabase/auth-ui-shared"
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs"

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
+import { supabase } from "../lib/supabaseClient"
 
-export default function SignIn({ supabaseClient }) {
+export default function SignIn({supabaseClient}) {
   const [isVisible, setIsVisible] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")

@@ -31,7 +31,7 @@ export default function SignInPage() {
             <SignIn supabaseClient={supabase} />
           ) : (
             <Home supabaseClient={supabase} />
-          )}
+            )}
         </div>
       )}
     </div>

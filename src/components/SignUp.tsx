@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { NewspaperIcon } from "@heroicons/react/24/outline"
+import { supabase } from "../lib/supabaseClient"
 
-export default function SignUp({ supabaseClient }) {
+export default function SignUp({supabaseClient}) {
   const [isVisible, setIsVisible] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -16,8 +17,8 @@ export default function SignUp({ supabaseClient }) {
         email: email,
         password: password,
         options: {
-          emailRedirectTo: 'http://localhost:3000/signin',
-        }
+          emailRedirectTo: "http://localhost:3000/signin",
+        },
       })
       console.log("wtffffffffffff", data, error)
       if (error) throw error

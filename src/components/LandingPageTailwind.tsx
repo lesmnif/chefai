@@ -16,7 +16,6 @@ import {
 } from "@heroicons/react/24/outline"
 import { CheckIcon } from "@heroicons/react/20/solid"
 import Link from "next/link"
-import { supabase } from "../lib/supabaseClient"
 
 const supportLinks = [
   {
@@ -154,7 +153,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ")
 }
 
-export default function Landing({ clientSupabase, session }) {
+export default function Landing({ supabaseClient, session }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -200,7 +199,7 @@ export default function Landing({ clientSupabase, session }) {
             {session ? (
               <a
                 onClick={() => {
-                  supabase.auth.signOut()
+                  supabaseClient.auth.signOut()
                 }}
                 className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-500"
               >

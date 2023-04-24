@@ -7,12 +7,13 @@ import GetTimers from "../functions/GetTimers"
 import MainBox from "../components/MainBox"
 import { examples } from "../../examples"
 import ParseRecipe from "../functions/ParseRecipe"
+import { supabase } from "../lib/supabaseClient"
 
 const RecipeSelection = dynamic(() => import("../components/RecipeSelected"), {
   ssr: false,
 })
 
-export default function Home({ supabaseClient }) {
+export default function Home({supabaseClient}) {
   const [result, setResult] = useState()
   const [query, setQuery] = useState("")
   const [gettingResponse, setGettingResponse] = useState(false)
