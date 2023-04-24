@@ -299,51 +299,25 @@ export default function useSpeechToText({
         audio
       };
 
-      // Gets raw base 64 string data
-      
-      const useGoogle = true
+      // Gets raw base 64 string data      
       audio.content = base64data.substr(base64data.indexOf(',') + 1);
       
-      if (useGoogle) {
-        const googleCloudRes = await fetch(
-          `https://speech.googleapis.com/v1/speech:recognize?key=${googleApiKey}`,
-          {
-            method: 'POST',
-            body: JSON.stringify(data)
-          }
-        )
-  
-        const googleCloudJson = await googleCloudRes.json();
-  
-        // Update results state with transcribed text
-        if (googleCloudJson.results?.length > 0) {
-          const { transcript } = googleCloudJson.results[0].alternatives[0];
-  
-          setLegacyResults((prevResults) => [...prevResults, transcript]);
-  
-          setResults((prevResults) => [
-            ...prevResults,
-            {
-              speechBlob: blob,
-              transcript,
-              timestamp: Math.floor(Date.now() / 1000)
-            }
-          ]);
+      const googleCloudRes = await fetch(
+        '/api/transcribe',
+        {
+          method: 'POST',
+          body: JSON.stringify(data)
         }
-      } else {
-        audio.content = base64data.substr(base64data.indexOf(',') + 1)
-        const res = await fetch(
-          `/api/transcribe`,
-          {
-            method: 'POST',
-            body: JSON.stringify(data)
-          }
-        );
-  
-        const { transcript } = await res.json()
+      )
+
+      const googleCloudJson = await googleCloudRes.json();
+
+      // Update results state with transcribed text
+      if (googleCloudJson.results?.length > 0) {
+        const { transcript } = googleCloudJson.results[0].alternatives[0];
 
         setLegacyResults((prevResults) => [...prevResults, transcript]);
-  
+
         setResults((prevResults) => [
           ...prevResults,
           {
