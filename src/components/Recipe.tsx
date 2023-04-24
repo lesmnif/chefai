@@ -3,6 +3,7 @@ import useSpeechToText from '../hooks/speech-to-text/speech-to-text'
 import Loader from "./Loader"
 import GetTimers from "../functions/GetTimers"
 import TimersButtons from "./TimersButtons"
+import { speak } from "../functions/text-to-speech"
 
 export default function Recipe({ ingredients, steps, recipeName, language }) {
   const [base64, setBase64] = useState("")
@@ -52,18 +53,8 @@ export default function Recipe({ ingredients, steps, recipeName, language }) {
       setGettingResponse(false)
 
       setGptResults(gptResults.concat(data.result))
-      const utterance = new SpeechSynthesisUtterance(data.result)
-      utterance.onend = () => startSpeechToText()
-      console.log("wtf", utterance)
-      speechSynthesis.speak(utterance)
-      let r = setInterval(() => {
-        if (!speechSynthesis.speaking) {
-          clearInterval(r)
-        } else {
-          speechSynthesis.pause()
-          speechSynthesis.resume()
-        }
-      }, 14000)
+      await speak(data.result, language)
+      startSpeechToText()
     } catch (error) {
       // Consider implementing your own error handling logic here
 
@@ -76,17 +67,7 @@ export default function Recipe({ ingredients, steps, recipeName, language }) {
     setIntroMessage(
       `We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have!`
     )
-    const utterance = new SpeechSynthesisUtterance(message)
-    utterance.onend = () => startSpeechToText()
-    speechSynthesis.speak(utterance)
-    let r = setInterval(() => {
-      if (!speechSynthesis.speaking) {
-        clearInterval(r)
-      } else {
-        speechSynthesis.pause()
-        speechSynthesis.resume()
-      }
-    }, 14000)
+    speak(message, language).then(startSpeechToText)
     setConversationPlaying(true)
   }
 

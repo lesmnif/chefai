@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import useSpeechToText from "../hooks/speech-to-text/speech-to-text"
 import RecipeSelection from "./RecipeSelected"
 import ParseRecipe from "../functions/ParseRecipe"
+import { speak } from "../functions/text-to-speech"
 
 export default function Transcriber({ language }) {
   const [gptResults, setGptResults] = useState([])
@@ -41,30 +42,12 @@ export default function Transcriber({ language }) {
         setIsChoosenRecipe(true)
         setRecipeInfo(data.result)
         setRecipe(recipe)
-        const utterance = new SpeechSynthesisUtterance(recipe.intro)
-        speechSynthesis.speak(utterance)
         setConversationPlaying(false)
-        let r = setInterval(() => {
-          if (!speechSynthesis.speaking) {
-            clearInterval(r)
-          } else {
-            speechSynthesis.pause()
-            speechSynthesis.resume()
-          }
-        }, 14000)
+        await speak(recipe.intro, language)
       } else {
         setIsChoosenRecipe(true)
-        const utterance = new SpeechSynthesisUtterance(data.result)
-        utterance.onend = () => startSpeechToText()
-        speechSynthesis.speak(utterance)
-        let r = setInterval(() => {
-          if (!speechSynthesis.speaking) {
-            clearInterval(r)
-          } else {
-            speechSynthesis.pause()
-            speechSynthesis.resume()
-          }
-        }, 14000)
+        await speak(data.result, language)
+        startSpeechToText()
       }
       setGptResults(gptResults.concat(data.result))
       setGettingResponse(false)
@@ -84,17 +67,7 @@ export default function Transcriber({ language }) {
     setIntroMessage(
       "Hi, I'm here to help you cook tasty food! Do you have any recipe in mind? If not, any preferences or available ingredients in your kitchen?"
     )
-    const utterance = new SpeechSynthesisUtterance(message)
-    utterance.onend = () => startSpeechToText()
-    speechSynthesis.speak(utterance)
-    let r = setInterval(() => {
-      if (!speechSynthesis.speaking) {
-        clearInterval(r)
-      } else {
-        speechSynthesis.pause()
-        speechSynthesis.resume()
-      }
-    }, 14000)
+    speak(message, language).then(startSpeechToText)
     setConversationPlaying(true)
   }
 
