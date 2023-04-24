@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { NewspaperIcon } from "@heroicons/react/24/outline"
-import { supabase } from "../lib/supabaseClient"
 
 export default function SignUp({supabaseClient}) {
   const [isVisible, setIsVisible] = useState(false)

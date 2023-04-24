@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
-import { supabase } from "../lib/supabaseClient"
 
 export default function SignIn({supabaseClient}) {
   const [isVisible, setIsVisible] = useState(false)

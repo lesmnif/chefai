@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import useSpeechToText from "react-hook-speech-to-text"
+import useSpeechToText from "../hooks/speech-to-text/speech-to-text"
 import RecipeSelection from "./RecipeSelected"
 import ParseRecipe from "../functions/ParseRecipe"
 

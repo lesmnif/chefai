@@ -7,7 +7,6 @@ import GetTimers from "../functions/GetTimers"
 import MainBox from "../components/MainBox"
 import { examples } from "../../examples"
 import ParseRecipe from "../functions/ParseRecipe"
-import { supabase } from "../lib/supabaseClient"
 
 const RecipeSelection = dynamic(() => import("../components/RecipeSelected"), {
   ssr: false,

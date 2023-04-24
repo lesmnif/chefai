@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import useSpeechToText from "react-hook-speech-to-text"
+import useSpeechToText from '../hooks/speech-to-text/speech-to-text'
 import Loader from "./Loader"
 import GetTimers from "../functions/GetTimers"
 import TimersButtons from "./TimersButtons"
