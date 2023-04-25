@@ -8,7 +8,8 @@ import { GoogleCloudRecognitionConfig } from './GoogleCloudRecognitionConfig';
 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition
 export interface SpeechRecognitionProperties {
   // continuous: do not pass continuous here, instead pass it as a param to the hook
-  // grammars?: SpeechGrammarList;
+  // @ts-expect-error
+  grammars?: SpeechGrammarList;
   interimResults?: boolean;
   lang?: string;
   maxAlternatives?: number;
@@ -25,8 +26,9 @@ interface BraveNavigator extends Navigator {
 const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
 
 const SpeechRecognition =
+// @ts-expect-error
   window.SpeechRecognition || (window as any).webkitSpeechRecognition;
-
+// @ts-expect-error
 let recognition: SpeechRecognition | null;
 
 export type ResultType = {
