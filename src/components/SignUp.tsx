@@ -17,7 +17,7 @@ export default function SignUp({supabaseClient}) {
         email: email,
         password: password,
         options: {
-          emailRedirectTo: "http://localhost:3000/signin",
+          emailRedirectTo: "https://chefai.vercel.app/signup",
         },
       })
       console.log("wtffffffffffff", data, error)
