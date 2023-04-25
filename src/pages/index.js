@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import LandingPageTailwind from "../components/LandingPageTailwind"
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react"
-import { supabase } from "../lib/supabaseClient"
 import LoaderPage from "../components/LoaderPage"
 import Home from "../components/HomeComponent"
 import GetTimers from "../functions/GetTimers"
