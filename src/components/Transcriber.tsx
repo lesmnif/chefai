@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react"
-import useSpeechToText from "../hooks/speech-to-text/speech-to-text"
-import RecipeSelection from "./RecipeSelected"
-import ParseRecipe from "../functions/ParseRecipe"
-import { speak } from "../functions/text-to-speech"
+import React, { useEffect, useState } from 'react'
+import useSpeechToText from '../hooks/speech-to-text/speech-to-text'
+import RecipeSelection from './RecipeSelected'
+import ParseRecipe from '../functions/ParseRecipe'
+import { speak } from '../functions/text-to-speech'
 
 export default function Transcriber({ language }) {
   const [gptResults, setGptResults] = useState([])
@@ -17,10 +17,10 @@ export default function Transcriber({ language }) {
   async function gptResponse(questions, error) {
     try {
       setGettingResponse(true)
-      const response = await fetch("/api/testing", {
-        method: "POST",
+      const response = await fetch('/api/testing', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           questions: questions,
@@ -31,13 +31,10 @@ export default function Transcriber({ language }) {
 
       const data = await response.json()
       if (response.status !== 200) {
-        throw (
-          data.error ||
-          new Error(`Request failed with status ${response.status}`)
-        )
+        throw data.error || new Error(`Request failed with status ${response.status}`)
       }
       const recipe = ParseRecipe(data.result)
-      console.log("what is going on", recipe, data.result)
+      console.log('what is going on', recipe, data.result)
       if (recipe.ingredients.length !== 0 && recipe.instructions.length !== 0) {
         setIsChoosenRecipe(true)
         setRecipeInfo(data.result)
@@ -52,8 +49,8 @@ export default function Transcriber({ language }) {
       setGptResults(gptResults.concat(data.result))
       setGettingResponse(false)
     } catch (error) {
-      if (error.name === "SyntaxError") {
-        console.log("U got in here :)))")
+      if (error.name === 'SyntaxError') {
+        console.log('U got in here :)))')
         return gptResponse(results, true)
       }
       // Consider implementing your own error handling logic here
@@ -72,13 +69,13 @@ export default function Transcriber({ language }) {
   }
 
   const pauseConversation = () => {
-    console.log("pause conv triggered")
+    console.log('pause conv triggered')
     stopSpeechToText()
     return setConversationPlaying(false)
   }
 
   const playConversation = () => {
-    console.log("play conv triggered")
+    console.log('play conv triggered')
     startSpeechToText()
     return setConversationPlaying(true)
   }
@@ -94,18 +91,15 @@ export default function Transcriber({ language }) {
     return isRecording ? pauseConversation() : playConversation()
   }
 
-  const {
-    error,
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
+  const { error, interimResult, isRecording, results, startSpeechToText, stopSpeechToText } = useSpeechToText({
     timeout: 25000,
     continuous: false,
     crossBrowser: true,
-    useOnlyGoogleCloud: language === "es-ES" ? true : false,
+    speechRecognitionProperties: {
+      interimResults: true,
+      lang: language,
+    },
+    useOnlyGoogleCloud: language === 'es-ES' ? true : false,
     googleCloudRecognitionConfig: {
       languageCode: language,
     },
@@ -121,19 +115,13 @@ export default function Transcriber({ language }) {
     gptResponse(results, false)
   }, [results])
 
-  if (error)
-    return (
-      <p>
-        {JSON.stringify(error)}Web Speech API is not available in this browser
-        🤷‍
-      </p>
-    )
+  if (error) return <p>{JSON.stringify(error)}Web Speech API is not available in this browser 🤷‍</p>
 
   return (
     <main className="text-center">
       {isReady ? (
         <RecipeSelection
-          language={"en-US"}
+          language={'en-US'}
           ingredients={recipe.ingredients}
           steps={recipe.instructions}
           recipeInfo={recipeInfo}
@@ -141,13 +129,11 @@ export default function Transcriber({ language }) {
       ) : (
         <div>
           <h1 className="mb-5 px-3.5 pt-14">
-            <p className=" mx-10">
-              {language === "es-ES" ? "ESPAÑOL" : "ENGLISH"}{" "}
-            </p>
+            <p className=" mx-10">{language === 'es-ES' ? 'ESPAÑOL' : 'ENGLISH'} </p>
             {recipe && (
               <button
                 className={
-                  "rounded-full  bg-red-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600"
+                  'rounded-full  bg-red-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600'
                 }
                 onClick={() => setIsReady(true)}
               >
@@ -156,35 +142,29 @@ export default function Transcriber({ language }) {
             )}
           </h1>
           <h1 className="text-3xl font-bold underline px-3.5">
-            {isRecording && "Listening..."}
-            {gettingResponse && "Getting response"}
+            {isRecording && 'Listening...'}
+            {gettingResponse && 'Getting response'}
           </h1>
           <button
             className={
               !conversationPlaying
-                ? "rounded-full  bg-blue-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600"
-                : "rounded-full  bg-red-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600"
+                ? 'rounded-full  bg-blue-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600'
+                : 'rounded-full  bg-red-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600'
             }
             onClick={handleButtonClick}
             disabled={gettingResponse}
           >
             {conversationPlaying
-              ? "Pause conversation"
+              ? 'Pause conversation'
               : results.length !== 0
-              ? "Resume Conversation"
-              : "Start Conversation"}
+              ? 'Resume Conversation'
+              : 'Start Conversation'}
           </button>
           {introMessage && <p> ASSISTANT: {introMessage}</p>}
           {results.map((result, index) => (
             <div key={result.timestamp}>
               <p>QUESTION: {result.transcript}</p>
-              {gptResults[index] && (
-                <p>
-                  {" "}
-                  ASSISTANT:{" "}
-                  {recipe && isChoosenRecipe ? recipe.intro : gptResults[index]}
-                </p>
-              )}
+              {gptResults[index] && <p> ASSISTANT: {recipe && isChoosenRecipe ? recipe.intro : gptResults[index]}</p>}
             </div>
           ))}
           {interimResult && <p>{interimResult}</p>}

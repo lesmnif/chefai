@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from 'react'
 import useSpeechToText from '../hooks/speech-to-text/speech-to-text'
-import Loader from "./Loader"
-import GetTimers from "../functions/GetTimers"
-import TimersButtons from "./TimersButtons"
-import { speak } from "../functions/text-to-speech"
+import Loader from './Loader'
+import GetTimers from '../functions/GetTimers'
+import TimersButtons from './TimersButtons'
+import { speak } from '../functions/text-to-speech'
 
 export default function Recipe({ ingredients, steps, recipeInfo, language }) {
-  const [base64, setBase64] = useState("")
+  const [base64, setBase64] = useState('')
   const [gptResults, setGptResults] = useState([])
   const [gettingResponse, setGettingResponse] = useState(false)
   const [conversationPlaying, setConversationPlaying] = useState(false)
@@ -15,25 +15,25 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   const [timers, setTimers] = useState([])
 
   const fetchImage = async (recipeName) => {
-    const res = await fetch("/api/text-to-image", {
-      method: "POST",
+    const res = await fetch('/api/text-to-image', {
+      method: 'POST',
       body: JSON.stringify({
         prompt: `A tasty ${recipeName} dish`,
       }),
     })
 
     const data = await res.json()
-    console.log("data", data)
+    console.log('data', data)
     setBase64(data.base64)
   }
 
   async function firstRender(recipeInfo) {
-    console.log("recipeInfo is that: ", recipeInfo)
+    console.log('recipeInfo is that: ', recipeInfo)
     try {
-      const response = await fetch("/api/recipeName", {
-        method: "POST",
+      const response = await fetch('/api/recipeName', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           recipeInfo: recipeInfo,
@@ -42,24 +42,21 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
 
       const data = await response.json()
       if (response.status !== 200) {
-        throw (
-          data.error ||
-          new Error(`Request failed with status ${response.status}`)
-        )
+        throw data.error || new Error(`Request failed with status ${response.status}`)
       }
       setRecipeName(data.result)
     } catch (error) {
-      return console.log("My error is:", error)
+      return console.log('My error is:', error)
     }
   }
 
   async function gptResponse(questions) {
     try {
       setGettingResponse(true)
-      const response = await fetch("/api/cooking", {
-        method: "POST",
+      const response = await fetch('/api/cooking', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           questions: questions,
@@ -71,10 +68,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
 
       const data = await response.json()
       if (response.status !== 200) {
-        throw (
-          data.error ||
-          new Error(`Request failed with status ${response.status}`)
-        )
+        throw data.error || new Error(`Request failed with status ${response.status}`)
       }
 
       setGettingResponse(false)
@@ -85,27 +79,25 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     } catch (error) {
       // Consider implementing your own error handling logic here
 
-      alert("ask again please")
+      alert('ask again please')
     }
   }
 
   const firstMessage = () => {
     const message = `We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have, ready to start?`
-    setIntroMessage(
-      `We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have!`
-    )
+    setIntroMessage(`We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have!`)
     speak(message, language).then(startSpeechToText)
     setConversationPlaying(true)
   }
 
   const pauseConversation = () => {
-    console.log("im going in here")
+    console.log('im going in here')
     stopSpeechToText()
     return setConversationPlaying(false)
   }
 
   const playConversation = () => {
-    console.log("im going on the paly part")
+    console.log('im going on the paly part')
     startSpeechToText()
     return setConversationPlaying(true)
   }
@@ -121,18 +113,15 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     return isRecording ? pauseConversation() : playConversation()
   }
 
-  const {
-    error,
-    interimResult,
-    isRecording,
-    results,
-    startSpeechToText,
-    stopSpeechToText,
-  } = useSpeechToText({
+  const { error, interimResult, isRecording, results, startSpeechToText, stopSpeechToText } = useSpeechToText({
     timeout: 20000,
     continuous: false,
+    speechRecognitionProperties: {
+      interimResults: true,
+      lang: language,
+    },
     crossBrowser: true,
-    useOnlyGoogleCloud: language === "es-ES" ? true : false,
+    useOnlyGoogleCloud: language === 'es-ES' ? true : false,
     googleCloudRecognitionConfig: {
       languageCode: language,
     },
@@ -141,7 +130,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   })
 
   useEffect(() => {
-    console.log("XD", results)
+    console.log('XD', results)
     speechSynthesis.cancel()
     if (results.length === 0) {
       return
@@ -177,16 +166,12 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
             <button
               className={
                 !conversationPlaying
-                  ? "rounded-full  bg-blue-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600"
-                  : "rounded-full  bg-red-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600"
+                  ? 'rounded-full  bg-blue-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600'
+                  : 'rounded-full  bg-red-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600'
               }
               onClick={handleButtonClick}
             >
-              {conversationPlaying
-                ? "Pause Cooking"
-                : results.length !== 0
-                ? "Resume Cooking"
-                : "Start Cooking"}
+              {conversationPlaying ? 'Pause Cooking' : results.length !== 0 ? 'Resume Cooking' : 'Start Cooking'}
             </button>
           </h2>
           {/* <p className="mt-4 text-gray-500">
@@ -196,8 +181,8 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
             lists.
           </p> */}
           <p className="text-xl font-semibold mt-5">
-            {isRecording && "Listening..."}
-            {gettingResponse && "Getting response"}
+            {isRecording && 'Listening...'}
+            {gettingResponse && 'Getting response'}
           </p>
           <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
             <div className="border-t border-gray-200 pt-4">
@@ -222,11 +207,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
         </div>
         <div className="flex justify-center items-center">
           {base64 ? (
-            <img
-              alt="recipePhoto"
-              src={"data:image/png;base64," + base64}
-              className="rounded-lg bg-gray-100"
-            />
+            <img alt="recipePhoto" src={'data:image/png;base64,' + base64} className="rounded-lg bg-gray-100" />
           ) : (
             <Loader cooking={true} />
           )}
