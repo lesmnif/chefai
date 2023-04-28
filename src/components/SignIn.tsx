@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 
@@ -273,12 +274,12 @@ export default function SignIn({supabaseClient}) {
 
           <p className="mt-5 text-center text-sm text-gray-500">
             Don't have an account?{" "}
-            <a
+            <Link
               href="/signup"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
             >
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>

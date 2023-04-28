@@ -37,7 +37,6 @@ const supportLinks = [
     icon: MicrophoneIcon,
   },
 ]
-const navigation = []
 const features = [
   {
     name: 'Push to deploy',
@@ -154,98 +153,24 @@ export default function Landing({ supabaseClient, session }) {
       <header className="absolute inset-x-0 top-0 z-50">
         <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
           <div className="flex lg:flex-1">
-            <a href="#" className="-m-1.5 p-1.5">
+            {/* <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
               <img
                 className="h-8 w-auto"
                 src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
                 alt=""
               />
-            </a>
+            </a> */}
           </div>
-          <div className="flex lg:hidden">
-            <button
-              type="button"
-              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <span className="sr-only">Open main menu</span>
-              <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-            </button>
-          </div>
-          <div className="hidden lg:flex lg:gap-x-12">
-            {navigation.map((item) => (
-              <a key={item.name} href={item.href} className="text-sm font-semibold leading-6 text-gray-900">
-                {item.name}
-              </a>
-            ))}
-          </div>
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            {session ? (
-              <a
-                onClick={() => {
-                  supabaseClient.auth.signOut()
-                }}
-                className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-500"
-              >
-                Log out <span aria-hidden="true">&rarr;</span>
-              </a>
-            ) : (
-              <a href="/signin" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-500">
-                Log in <span aria-hidden="true">&rarr;</span>
-              </a>
-            )}
+          <div className="lg:flex lg:flex-1 lg:justify-end">
+            <Link href="/signin" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-500">
+              Log in <span aria-hidden="true">&rarr;</span>
+            </Link>
           </div>
         </nav>
-        <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
-          <div className="fixed inset-0 z-50" />
-          <Dialog.Panel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-            <div className="flex items-center justify-between">
-              <a href="#" className="-m-1.5 p-1.5">
-                <span className="sr-only">Your Company</span>
-                <img
-                  className="h-8 w-auto"
-                  src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                  alt=""
-                />
-              </a>
-              <button
-                type="button"
-                className="-m-2.5 rounded-md p-2.5 text-gray-700"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="sr-only">Close menu</span>
-                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-              </button>
-            </div>
-            <div className="mt-6 flow-root">
-              <div className="-my-6 divide-y divide-gray-500/10">
-                <div className="space-y-2 py-6">
-                  {navigation.map((item) => (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                    >
-                      {item.name}
-                    </a>
-                  ))}
-                </div>
-                <div className="py-6">
-                  <a
-                    href="/signin"
-                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                  >
-                    Log in
-                  </a>
-                </div>
-              </div>
-            </div>
-          </Dialog.Panel>
-        </Dialog>
       </header>
 
-      <main className="isolate">
+      <main className="isolate py-5">
         {/* Hero section */}
         <div className="relative pt-14">
           <div
@@ -260,7 +185,7 @@ export default function Landing({ supabaseClient, session }) {
               }}
             />
           </div>
-          <div className="py-24 sm:py-20">
+          <div className="my-12">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl text-center">
                 <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
@@ -271,22 +196,13 @@ export default function Landing({ supabaseClient, session }) {
                   <br /> A real-time cooking assistant that helps you never run out of meal ideas again. With hands-free
                   guidance, cooking has never been easier. 🙌
                 </p>
-                <div className="mt-10 flex items-center justify-center gap-x-6">
-                  {session ? (
-                    <Link
-                      href="/signup"
-                      className="rounded-md bg-gradient-to-r from-blue-500 via-blue-700 to-gray-600 opacity-90 text-white  px-3.5 py-2.5 text-sm font-semibold shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 hover:from-blue-600 hover:via-blue-800 hover:to-gray-700"
-                    >
-                      Get started cooking!
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/signup"
-                      className="rounded-md bg-gradient-to-r from-blue-500 via-blue-700 to-gray-600 opacity-90 text-white  px-3.5 py-2.5 text-sm font-semibold shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 hover:from-blue-600 hover:via-blue-800 hover:to-gray-700"
-                    >
-                      Get started and sign up
-                    </Link>
-                  )}
+                <div className=" flex items-center justify-center gap-x-6">
+                  <Link
+                    href="/signup"
+                    className="rounded-md bg-gradient-to-r from-blue-500 via-blue-700 to-gray-600 opacity-90 text-white  px-3.5 py-2.5 my-8 text-sm font-semibold shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 hover:from-blue-600 hover:via-blue-800 hover:to-gray-700"
+                  >
+                    Get started and sign up
+                  </Link>
                   {/* <a
                     href="/transcribe/en-US"
                     className="text-sm font-semibold leading-6 text-gray-900"

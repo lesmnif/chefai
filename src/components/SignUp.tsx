@@ -1,34 +1,76 @@
-import { useEffect, useState } from "react"
-import toast from "react-hot-toast"
-import { NewspaperIcon } from "@heroicons/react/24/outline"
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { NewspaperIcon } from '@heroicons/react/24/outline'
 
-export default function SignUp({supabaseClient}) {
+export default function SignUp({ supabaseClient }) {
   const [isVisible, setIsVisible] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [errorMsg, setErrorMsg] = useState(null)
   const [success, setSuccess] = useState(false)
+  const [username, setUsername] = useState('')
+
+  function getFirstTwoChars(str) {
+    if (str.length >= 2) {
+      return str.substring(0, 2)
+    } else {
+      return str
+    }
+  }
 
   const onSubmit = async (event) => {
     event.preventDefault()
+    const passwordCheck = checkPassword(password)
+    if (passwordCheck.length !== 0) {
+      return toast.error(`Invalid password: ${passwordCheck}`)
+    }
     try {
       const { data, error } = await supabaseClient.auth.signUp({
         email: email,
         password: password,
         options: {
-          emailRedirectTo: "https://chefai.vercel.app/signup",
+          emailRedirectTo: 'https://chefai.vercel.app/signup',
         },
       })
-      console.log("wtffffffffffff", data, error)
+      console.log('wtffffffffffff', data, error)
       if (error) throw error
       else if (data.user?.identities?.length === 0) {
-        toast.error("User already registered")
+        toast.error('User already registered')
       } else {
-        toast.success("Confirmation mail sent. Check your inbox.")
+        const firstTwoChars = getFirstTwoChars(navigator.language)
+        const language = firstTwoChars === 'es' ? 'es' : 'en'
+        await supabaseClient
+          .from('profiles')
+          .update({
+            username,
+            language,
+          })
+          .eq('id', data.user?.id)
+        toast.success('Confirmation mail sent. Check your inbox.')
       }
     } catch (error) {
       alert(error)
     }
+  }
+
+  function checkPassword(password) {
+    // Check if password contains at least one uppercase and one lowercase letter
+    // if (!/(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
+    //   return 'Password must contain a mix of uppercase and lowercase letters'
+    // }
+
+    // Check if password is at least 8 characters long
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long'
+    }
+
+    // Check if password contains at least one number
+    if (!/\d/.test(password)) {
+      return 'Password must contain at least one number'
+    }
+    // Check if password contains at least one special character
+
+    return ''
   }
 
   return (
@@ -95,17 +137,26 @@ export default function SignUp({supabaseClient}) {
                 </div>
               </div> */}
             </div>
-            <form
-              className="space-y-6"
-              action="#"
-              method="POST"
-              onSubmit={(event) => onSubmit(event)}
-            >
+            <form className="space-y-6" action="#" method="POST" onSubmit={(event) => onSubmit(event)}>
               <div className="">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
+                <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
+                  Username
+                </label>
+                <div className="mt-2">
+                  <input
+                    id="username"
+                    name="username"
+                    type="username"
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    autoComplete="email"
+                    required
+                    className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+              <div className="">
+                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                   Email address
                 </label>
                 <div className="mt-2">
@@ -134,7 +185,7 @@ export default function SignUp({supabaseClient}) {
                     <input
                       id="password"
                       name="password"
-                      type={isVisible ? "text" : "password"}
+                      type={isVisible ? 'text' : 'password'}
                       autoComplete="false"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
@@ -187,9 +238,9 @@ export default function SignUp({supabaseClient}) {
                     </span>
                   </div>
                 </div>
-                {/* <div className="text-gray text-default mt-2 flex items-center text-sm">
+                <div className="text-gray text-default mt-2 flex items-center text-sm">
                   <ul className="ml-2">
-                    <li className="mt-0.5 ">
+                    {/* <li className="mt-0.5 ">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="5"
@@ -205,7 +256,7 @@ export default function SignUp({supabaseClient}) {
                         <circle className="" cx="12" cy="12" r="10"></circle>
                       </svg>
                       Mix of uppercase &amp; lowercase letters
-                    </li>
+                    </li> */}
                     <li className="mt-0.5">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -241,7 +292,7 @@ export default function SignUp({supabaseClient}) {
                       Contain at least 1 number
                     </li>
                   </ul>
-                </div> */}
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 {/* <div className="flex items-center">
@@ -271,11 +322,8 @@ export default function SignUp({supabaseClient}) {
           </div>
 
           <p className="mt-5 text-center text-sm text-gray-500">
-            Have an account?{" "}
-            <a
-              href="/signin"
-              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
-            >
+            Have an account?{' '}
+            <a href="/signin" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
               Sign in
             </a>
           </p>
