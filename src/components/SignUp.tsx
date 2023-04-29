@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { NewspaperIcon } from '@heroicons/react/24/outline'
+import getFirstTwoChars from '../functions/firstTwoChars'
 
 export default function SignUp({ supabaseClient }) {
   const [isVisible, setIsVisible] = useState(false)
@@ -10,13 +11,7 @@ export default function SignUp({ supabaseClient }) {
   const [success, setSuccess] = useState(false)
   const [username, setUsername] = useState('')
 
-  function getFirstTwoChars(str) {
-    if (str.length >= 2) {
-      return str.substring(0, 2)
-    } else {
-      return str
-    }
-  }
+  const language = getFirstTwoChars(navigator.language)
 
   const onSubmit = async (event) => {
     event.preventDefault()
@@ -32,13 +27,10 @@ export default function SignUp({ supabaseClient }) {
           emailRedirectTo: 'https://chefai.vercel.app/signup',
         },
       })
-      console.log('wtffffffffffff', data, error)
       if (error) throw error
       else if (data.user?.identities?.length === 0) {
         toast.error('User already registered')
       } else {
-        const firstTwoChars = getFirstTwoChars(navigator.language)
-        const language = firstTwoChars === 'es' ? 'es' : 'en'
         await supabaseClient
           .from('profiles')
           .update({
@@ -83,7 +75,7 @@ export default function SignUp({ supabaseClient }) {
             alt="Your Company"
           /> */}
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Create your account
+            {language === 'es' ? 'Crea tu cuenta' : 'Create your account'}
           </h2>
         </div>
 
@@ -140,7 +132,7 @@ export default function SignUp({ supabaseClient }) {
             <form className="space-y-6" action="#" method="POST" onSubmit={(event) => onSubmit(event)}>
               <div className="">
                 <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                  Username
+                  {language === 'es' ? 'Nombre de usuario' : 'Username'}
                 </label>
                 <div className="mt-2">
                   <input
@@ -149,7 +141,6 @@ export default function SignUp({ supabaseClient }) {
                     type="username"
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
-                    autoComplete="email"
                     required
                     className="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
@@ -157,7 +148,7 @@ export default function SignUp({ supabaseClient }) {
               </div>
               <div className="">
                 <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                  Email address
+                  {language === 'es' ? 'Correo electrónico' : 'Email address'}
                 </label>
                 <div className="mt-2">
                   <input
@@ -178,7 +169,7 @@ export default function SignUp({ supabaseClient }) {
                   htmlFor="password"
                   className="block text-sm font-medium leading-6 text-gray-900 peer-invalid:visible"
                 >
-                  Password
+                  {language === 'es' ? 'Contraseña' : 'Password'}
                 </label>
                 <div className="mt-2">
                   <div className="relative">
@@ -272,7 +263,7 @@ export default function SignUp({ supabaseClient }) {
                       >
                         <circle cx="12" cy="12" r="10"></circle>
                       </svg>
-                      Minimum 8 characters long
+                      {language === 'es' ? 'Mínimo de 8 carácteres' : 'Minimum 8 characters long'}
                     </li>
                     <li className="mt-0.5">
                       <svg
@@ -289,7 +280,7 @@ export default function SignUp({ supabaseClient }) {
                       >
                         <circle cx="12" cy="12" r="10"></circle>
                       </svg>
-                      Contain at least 1 number
+                      {language === 'es' ? 'Contener al menos 1 número' : 'Contain at least 1 number'}
                     </li>
                   </ul>
                 </div>
@@ -313,7 +304,7 @@ export default function SignUp({ supabaseClient }) {
                   type="submit"
                   className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                  Sign up
+                  {language === 'es' ? 'Regístrate' : 'Sign up'}
                 </button>
               </div>
             </form>
@@ -322,9 +313,9 @@ export default function SignUp({ supabaseClient }) {
           </div>
 
           <p className="mt-5 text-center text-sm text-gray-500">
-            Have an account?{' '}
+            {language === 'es' ? 'Tienes cuenta?' : 'Have an account?'}{' '}
             <a href="/signin" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-              Sign in
+              {language === 'es' ? 'Inicia sesión' : 'Sign in'}
             </a>
           </p>
         </div>

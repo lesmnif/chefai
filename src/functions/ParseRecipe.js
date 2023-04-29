@@ -1,4 +1,4 @@
-export default function parseRecipe(text) {
+export default function parseRecipe(text, language) {
   const recipe = {
     ingredients: [],
     instructions: [],
@@ -17,10 +17,10 @@ export default function parseRecipe(text) {
     if (line.endsWith(":")) {
       currentSection = line.slice(0, -1).toLowerCase()
     } else {
-      if (currentSection === "ingredients") {
+      if (currentSection === "ingredients" || currentSection === "ingredientes") {
         introFound = true
         recipe.ingredients.push(line)
-      } else if (currentSection === "instructions") {
+      } else if (currentSection === "instructions" || currentSection === "instrucciones") {
         recipe.instructions.push(line)
       }
     }

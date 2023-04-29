@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 export default function App({ Component, pageProps }) {
   const [supabase] = useState(() => createBrowserSupabaseClient())
 
+
   return (
     <div className="bg-white min-h-screen">
       <SessionContextProvider

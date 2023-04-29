@@ -142,8 +142,8 @@ export default function Transcriber({ language }) {
             )}
           </h1>
           <h1 className="text-3xl font-bold underline px-3.5">
-            {isRecording && 'Listening...'}
-            {gettingResponse && 'Getting response'}
+            {isRecording && language === 'es-ES' ? 'Escuchando...' : 'Listening...'}
+            {gettingResponse && language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response'}
           </h1>
           <button
             className={

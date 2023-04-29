@@ -64,7 +64,6 @@ export default async function (req, res) {
             : `${question.transcript}, your response MUST be only a JSON.`,
         })
   })
-  console.log("wtf", messages)
   try {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",

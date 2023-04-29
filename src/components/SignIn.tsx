@@ -1,13 +1,16 @@
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import toast from "react-hot-toast"
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import getFirstTwoChars from '../functions/firstTwoChars'
 
-export default function SignIn({supabaseClient}) {
+export default function SignIn({ supabaseClient }) {
   const [isVisible, setIsVisible] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [errorMsg, setErrorMsg] = useState(null)
   const [success, setSuccess] = useState(false)
+
+  const language = getFirstTwoChars(navigator.language)
 
   const onSubmit = async (event) => {
     event.preventDefault()
@@ -16,7 +19,7 @@ export default function SignIn({supabaseClient}) {
         email: email,
         password: password,
       })
-      console.log("hi", data, error)
+      console.log('hi', data, error)
       if (error) throw error
       else {
       }
@@ -35,7 +38,7 @@ export default function SignIn({supabaseClient}) {
             alt="Your Company"
           /> */}
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Log in your account
+            {language === 'es' ? 'Inicia sesión' : 'Log in your account'}
           </h2>
         </div>
 
@@ -88,18 +91,10 @@ export default function SignIn({supabaseClient}) {
                 </div>
               </div> */}
             </div>
-            <form
-              className="space-y-6"
-              action="#"
-              method="POST"
-              onSubmit={(event) => onSubmit(event)}
-            >
+            <form className="space-y-6" action="#" method="POST" onSubmit={(event) => onSubmit(event)}>
               <div className="">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Email address
+                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                  {language === 'es' ? 'Correo electrónico' : 'Email address'}
                 </label>
                 <div className="mt-2">
                   <input
@@ -120,14 +115,14 @@ export default function SignIn({supabaseClient}) {
                   htmlFor="password"
                   className="block text-sm font-medium leading-6 text-gray-900 peer-invalid:visible"
                 >
-                  Password
+                  {language === 'es' ? 'Contraseña' : 'Password'}
                 </label>
                 <div className="mt-2">
                   <div className="relative">
                     <input
                       id="password"
                       name="password"
-                      type={isVisible ? "text" : "password"}
+                      type={isVisible ? 'text' : 'password'}
                       autoComplete="false"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
@@ -264,7 +259,7 @@ export default function SignIn({supabaseClient}) {
                   type="submit"
                   className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                  Sign in
+                  {language === 'es' ? 'Iniciar sesión' : 'Sign in'}
                 </button>
               </div>
             </form>
@@ -273,12 +268,9 @@ export default function SignIn({supabaseClient}) {
           </div>
 
           <p className="mt-5 text-center text-sm text-gray-500">
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
-            >
-              Sign up
+            {language === 'es' ? 'No tienes cuenta?' : `Don't have an account?`}{' '}
+            <Link href="/signup" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+            {language === 'es' ? 'Regístrate' : "Sign up"}
             </Link>
           </p>
         </div>

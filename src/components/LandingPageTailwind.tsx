@@ -16,135 +16,39 @@ import {
 } from '@heroicons/react/24/outline'
 import { CheckIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link'
+import getFirstTwoChars from '../functions/firstTwoChars'
 
-const supportLinks = [
+const features = [
   {
     name: 'Personalized Recipe Suggestions',
+    nameEs: 'Sugerencias de recetas personalizadas',
     href: '#',
+    descriptionEs: `Cuéntanos tus preferencias y los ingredientes disponibles, y te sugeriremos recetas especialmente para ti.`,
     description: "Tell us your preferences and available ingredients and we'll suggest recipes just for you.",
     icon: PuzzlePieceIcon,
   },
   {
     name: 'Step-by-Step Guidance',
+    nameEs: 'Guía Paso a Paso',
     href: '#',
+    descriptionEs: `Obtén instrucciones claras y guía mientras cocinas, para que puedas concentrarte en crear comidas deliciosas.`,
     description: 'Get clear instructions and guidance while you cook, so you can focus on making delicious meals.',
     icon: ChatBubbleBottomCenterTextIcon,
   },
   {
     name: 'Real Time Assistance',
+    nameEs: 'Asistencia en Tiempo Real',
     href: '#',
+    descriptionEs:
+      'Nuestra asistente de cocina impulsada por inteligencia artificial está siempre disponible para ayudar, sin importar lo que estés cocinando.',
     description: "Our AI-powered cooking assistant is always available to help, no matter what you're making.",
     icon: MicrophoneIcon,
   },
 ]
-const features = [
-  {
-    name: 'Push to deploy',
-    description:
-      'Morbi viverra dui mi arcu sed. Tellus semper adipiscing suspendisse semper morbi. Odio urna massa nunc massa.',
-    icon: CloudArrowUpIcon,
-  },
-  {
-    name: 'SSL certificates',
-    description:
-      'Sit quis amet rutrum tellus ullamcorper ultricies libero dolor eget. Sem sodales gravida quam turpis enim lacus amet.',
-    icon: LockClosedIcon,
-  },
-  {
-    name: 'Simple queues',
-    description:
-      'Quisque est vel vulputate cursus. Risus proin diam nunc commodo. Lobortis auctor congue commodo diam neque.',
-    icon: ArrowPathIcon,
-  },
-  {
-    name: 'Advanced security',
-    description:
-      'Arcu egestas dolor vel iaculis in ipsum mauris. Tincidunt mattis aliquet hac quis. Id hac maecenas ac donec pharetra eget.',
-    icon: FingerPrintIcon,
-  },
-]
-const tiers = [
-  {
-    name: 'Freelancer',
-    id: 'tier-freelancer',
-    href: '#',
-    priceMonthly: '$24',
-    description: 'The essentials to provide your best work for clients.',
-    features: ['5 products', 'Up to 1,000 subscribers', 'Basic analytics', '48-hour support response time'],
-    mostPopular: false,
-  },
-  {
-    name: 'Startup',
-    id: 'tier-startup',
-    href: '#',
-    priceMonthly: '$32',
-    description: 'A plan that scales with your rapidly growing business.',
-    features: [
-      '25 products',
-      'Up to 10,000 subscribers',
-      'Advanced analytics',
-      '24-hour support response time',
-      'Marketing automations',
-    ],
-    mostPopular: true,
-  },
-  {
-    name: 'Enterprise',
-    id: 'tier-enterprise',
-    href: '#',
-    priceMonthly: '$48',
-    description: 'Dedicated support and infrastructure for your company.',
-    features: [
-      'Unlimited products',
-      'Unlimited subscribers',
-      'Advanced analytics',
-      '1-hour, dedicated support response time',
-      'Marketing automations',
-    ],
-    mostPopular: false,
-  },
-]
-const faqs = [
-  {
-    id: 1,
-    question: "What's the best thing about Switzerland?",
-    answer:
-      "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
-  },
-  // More questions...
-]
-const footerNavigation = {
-  solutions: [
-    { name: 'Hosting', href: '#' },
-    { name: 'Data Services', href: '#' },
-    { name: 'Uptime Monitoring', href: '#' },
-    { name: 'Enterprise Services', href: '#' },
-  ],
-  support: [
-    { name: 'Pricing', href: '#' },
-    { name: 'Documentation', href: '#' },
-    { name: 'Guides', href: '#' },
-    { name: 'API Reference', href: '#' },
-  ],
-  company: [
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Jobs', href: '#' },
-    { name: 'Press', href: '#' },
-    { name: 'Partners', href: '#' },
-  ],
-  legal: [
-    { name: 'Claim', href: '#' },
-    { name: 'Privacy', href: '#' },
-    { name: 'Terms', href: '#' },
-  ],
-}
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
 
 export default function Landing({ supabaseClient, session }) {
+  const language = getFirstTwoChars(navigator.language)
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -153,24 +57,22 @@ export default function Landing({ supabaseClient, session }) {
       <header className="absolute inset-x-0 top-0 z-50">
         <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
           <div className="flex lg:flex-1">
-            {/* <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-              <img
-                className="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                alt=""
-              />
-            </a> */}
+            <Link href="#" className="-m-1.5 p-1.5 font-bold text-lg">
+              {language === 'es' ? 'Contribuir' : 'Contribute'}
+            </Link>
           </div>
           <div className="lg:flex lg:flex-1 lg:justify-end">
             <Link href="/signin" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-500">
-              Log in <span aria-hidden="true">&rarr;</span>
+              {language === 'es' ? 'Inicia sesión' : 'Log in'}{' '}
+              <span className="ml-0.5" aria-hidden="true">
+                &rarr;
+              </span>
             </Link>
           </div>
         </nav>
       </header>
 
-      <main className="isolate py-5">
+      <main className="isolate lg:py-5 py-10">
         {/* Hero section */}
         <div className="relative pt-14">
           <div
@@ -185,23 +87,32 @@ export default function Landing({ supabaseClient, session }) {
               }}
             />
           </div>
-          <div className="my-12">
+          <div className="my-7">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl text-center">
                 <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                  Hands-free AI that helps you cook tasty food.
+                  {language === 'es'
+                    ? `IA manos libres para cocinar platos deliciosos.
+`
+                    : 'Hands-free AI that helps you cook tasty food.'}
                 </h1>
                 <p className="mt-6 text-lg leading-8 text-gray-600">
-                  Say goodbye to boring recipes and hello to Chef AI!
-                  <br /> A real-time cooking assistant that helps you never run out of meal ideas again. With hands-free
-                  guidance, cooking has never been easier. 🙌
+                  {language === 'es'
+                    ? ' ¡Dile adiós a las recetas aburridas y hola a Chef AI!'
+                    : 'Say goodbye to boring recipes and hello to Chef AI!'}
+                  <br />{' '}
+                  {language === 'es'
+                    ? `Un asistente de cocina en tiempo real que te ayuda a no volver a quedarte sin ideas de comidas. Con la guía de manos libres, cocinar nunca ha sido tan fácil.`
+                    : `A real-time cooking assistant that helps you never run out of meal ideas again. With hands-free
+                  guidance, cooking has never been easier.`}{' '}
+                  🙌
                 </p>
                 <div className=" flex items-center justify-center gap-x-6">
                   <Link
                     href="/signup"
                     className="rounded-md bg-gradient-to-r from-blue-500 via-blue-700 to-gray-600 opacity-90 text-white  px-3.5 py-2.5 my-8 text-sm font-semibold shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 hover:from-blue-600 hover:via-blue-800 hover:to-gray-700"
                   >
-                    Get started and sign up
+                    {language === 'es' ? 'Regístrate' : 'Get started and sign up'}
                   </Link>
                   {/* <a
                     href="/transcribe/en-US"
@@ -231,14 +142,16 @@ export default function Landing({ supabaseClient, session }) {
           aria-labelledby="contact-heading"
         >
           <div className="grid grid-cols-1 gap-y-20 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-0">
-            {supportLinks.map((link) => (
+            {features.map((link) => (
               <div key={link.name} className="flex flex-col rounded-2xl bg-white shadow-xl">
                 <div className="relative flex-1 px-6 pb-8 pt-16 md:px-8">
                   <div className="absolute top-0 inline-block -translate-y-1/2 transform rounded-xl bg-gradient-to-r from-sky-400 to-blue-500 p-5 shadow-lg">
                     <link.icon className="h-6 w-6 text-white" aria-hidden="true" />
                   </div>
-                  <h3 className="text-xl font-medium text-slate-900">{link.name}</h3>
-                  <p className="mt-4 text-base text-slate-500">{link.description}</p>
+                  <h3 className="text-xl font-medium text-slate-900">{language === 'es' ? link.nameEs : link.name}</h3>
+                  <p className="mt-4 text-base text-slate-500">
+                    {language === 'es' ? link.descriptionEs : link.description}
+                  </p>
                 </div>
               </div>
             ))}

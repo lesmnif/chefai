@@ -3,6 +3,7 @@ import LandingPageTailwind from '../components/LandingPageTailwind'
 import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import LoaderPage from '../components/LoaderPage'
 import Home from '../components/HomeComponent'
+import GetTimers from '../functions/GetTimers'
 
 export default function Landing() {
   const [isLoading, setIsLoading] = useState(true)
@@ -31,7 +32,7 @@ export default function Landing() {
       <div>
         {isLoading ? (
           <LoaderPage />
-        ) : !session? (
+        ) : !session ? (
           <LandingPageTailwind supabaseClient={supabase} session={session} />
         ) : (
           <Home supabaseClient={supabase} session={session} />

@@ -63,6 +63,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
           gptResponses: gptResults,
           recipeName: recipeName,
           steps: JSON.stringify(steps),
+          language: language,
         }),
       })
 
@@ -84,9 +85,17 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   }
 
   const firstMessage = () => {
-    const message = `We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have, ready to start?`
-    setIntroMessage(`We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have!`)
-    speak(message, language).then(startSpeechToText)
+    if (language === 'es-ES') {
+      const message = `Vamos a empezar a cocinar ${recipeName}. Asegúrate de preguntar cualquier duda que puedas tener, ¿listo para empezar?`
+      setIntroMessage(
+        `Vamos a empezar a cocinar ${recipeName}. Asegúrate de preguntar cualquier duda que puedas tener, ¿listo para empezar?`
+      )
+      speak(message, language).then(startSpeechToText)
+    } else {
+      const message = `We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have, ready to start?`
+      setIntroMessage(`We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have!`)
+      speak(message, language).then(startSpeechToText)
+    }
     setConversationPlaying(true)
   }
 
@@ -156,6 +165,8 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     }
   }, [recipeName])
 
+  console.log("wtf",  language)
+
   return (
     <div className="bg-white">
       <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
@@ -174,19 +185,13 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
               {conversationPlaying ? 'Pause Cooking' : results.length !== 0 ? 'Resume Cooking' : 'Start Cooking'}
             </button>
           </h2>
-          {/* <p className="mt-4 text-gray-500">
-            The walnut wood card tray is precision milled to perfectly fit a
-            stack of Focus cards. The powder coated steel divider separates
-            active cards from new ones, or can be used to archive important task
-            lists.
-          </p> */}
           <p className="text-xl font-semibold mt-5">
-            {isRecording && 'Listening...'}
-            {gettingResponse && 'Getting response'}
+            {isRecording && (language === 'es-ES' ? 'Escuchando...' : 'Listening...')}
+            {gettingResponse && (language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response')}
           </p>
           <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
             <div className="border-t border-gray-200 pt-4">
-              <dt className="font-medium text-gray-900">Ingredients</dt>
+              <dt className="font-medium text-gray-900">{language === 'es-ES' ? 'Ingredientes' : 'Ingredients'}</dt>
               {/*  */}
               {ingredients.map((ingredient) => (
                 <dd key={ingredient} className="mt-2 text-sm text-gray-500">
@@ -195,7 +200,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
               ))}
             </div>
             <div className="border-t border-gray-200 pt-4">
-              <dt className="font-medium text-gray-900">Steps</dt>
+              <dt className="font-medium text-gray-900">{language === 'es-ES' ? 'Pasos' : 'Steps'}</dt>
               {/*  */}
               {steps.map((step) => (
                 <dd key={step} className="mt-2 text-sm text-gray-500">
@@ -211,11 +216,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
           ) : (
             <Loader cooking={true} />
           )}
-          {/* <img
-            src="https://tailwindui.com/img/ecommerce-images/product-feature-03-detail-01.jpg"
-            alt="Walnut card tray with white powder coated steel divider and 3 punchout holes."
-            
-          /> */}
         </div>
       </div>
     </div>

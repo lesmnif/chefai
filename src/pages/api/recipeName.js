@@ -67,7 +67,6 @@ export default async function (req, res) {
     },
   ]
 
-  console.log("wtf", messages)
   try {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
