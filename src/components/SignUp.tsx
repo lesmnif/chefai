@@ -132,13 +132,13 @@ export default function SignUp({ supabaseClient }) {
             <form className="space-y-6" action="#" method="POST" onSubmit={(event) => onSubmit(event)}>
               <div className="">
                 <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                  {language === 'es' ? 'Nombre de usuario' : 'Username'}
+                  {language === 'es' ? 'Nombre' : 'Name'}
                 </label>
                 <div className="mt-2">
                   <input
                     id="username"
                     name="username"
-                    type="username"
+                    type="text"
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
                     required

@@ -52,7 +52,7 @@ export default function Home({ supabaseClient, session }) {
 
       let { data, error } = await supabaseClient.from('profiles').upsert(updates)
       if (error) throw error
-      toast.success(language === 'es' ? 'Nombre de usuario actualizado' : 'Username updated!')
+      toast.success(language === 'es' ? 'Nombre actualizado' : 'Name updated!')
       setTimeout(function () {
         window.location.reload()
       }, 1000)
@@ -186,7 +186,7 @@ export default function Home({ supabaseClient, session }) {
         />
       ) : (
         language && (
-          <div className="lg:py-28 lg:px-24 py-24">
+          <div className="lg:py-24 lg:px-20 py-20">
             <header className="absolute inset-x-0 top-0 z-50">
               <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
                 <div className="flex lg:flex-1">
@@ -233,13 +233,13 @@ export default function Home({ supabaseClient, session }) {
                       <div className="space-y-2 py-3 font-extrabold text-lg">Settings</div>
                       <div className="py-6 flex-col">
                         <div>
-                          <h1 className="font-bold">{language === 'es' ? 'Nombre de usuario:' : 'Username:'}</h1>
+                          <h1 className="font-bold">{language === 'es' ? 'Nombre:' : 'Name:'}</h1>
                           <div className="relative flex items-start my-3 ml-5">
                             <div>
                               <div className=" flex rounded-md shadow-sm">
                                 <div className="relative flex flex-grow items-stretch focus-within:z-10">
                                   <input
-                                    type="username"
+                                    type="text"
                                     name="username"
                                     id="username"
                                     value={username}
