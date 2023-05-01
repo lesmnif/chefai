@@ -113,13 +113,13 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
       setGptResults(gptResults.concat(data.result))
       await speak(data.result, language)
       startSpeechToText()
-      track(
-        'UserSentMessage',
-        {},
-        {
-          user_id: userId,
-        }
-      )
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ event: 'UserSentMessage', language: language, userId: userId }),
+      })
     } catch (error) {
       // Consider implementing your own error handling logic here
 

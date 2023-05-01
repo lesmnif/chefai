@@ -164,13 +164,14 @@ export default function Home({ supabaseClient, session }) {
       const recipe = ParseRecipe(data.result, language)
       setRecipeInfo(data.result)
       setRecipe(recipe)
-      track(
-        'UserGeneratedRecipe',
-        {},
-        {
-          user_id: session?.user?.id,
-        }
-      )
+
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ event: 'UserGeneratedRecipe', language: language, userId: session?.user?.id }),
+      })
     } catch (error) {
       setGettingResponse(false)
       // Consider implementing your own error handling logic here
