@@ -12,7 +12,7 @@ import { Dialog } from '@headlessui/react'
 import { useUser } from '@supabase/auth-helpers-react'
 import { toast } from 'react-hot-toast'
 import getFirstTwoChars from '../functions/firstTwoChars'
-
+import { track } from '@amplitude/analytics-node'
 
 const RecipeSelection = dynamic(() => import('../components/RecipeSelected'), {
   ssr: false,
@@ -164,7 +164,13 @@ export default function Home({ supabaseClient, session }) {
       const recipe = ParseRecipe(data.result, language)
       setRecipeInfo(data.result)
       setRecipe(recipe)
-      console.log('this is my recipe', recipe)
+      track(
+        'UserGeneratedRecipe',
+        {},
+        {
+          user_id: session?.user?.id,
+        }
+      )
     } catch (error) {
       setGettingResponse(false)
       // Consider implementing your own error handling logic here
@@ -180,6 +186,7 @@ export default function Home({ supabaseClient, session }) {
       </Head>
       {recipe ? (
         <RecipeSelection
+          userId={session?.user?.id}
           ingredients={recipe.ingredients}
           steps={recipe.instructions}
           recipeInfo={recipeInfo}
@@ -193,14 +200,13 @@ export default function Home({ supabaseClient, session }) {
                 <div className="flex lg:flex-1">
                   {' '}
                   <Link href="https://ko-fi.com/bogdan_codes" className="-m-1.5 p-1.5 font-bold text-lg ">
-                   
-                      <button
-                        type="button"
-                        className="transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 mt-1 px-1.5  text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                      >
-                        <img title="ko-fi" src="/ko-fi.png" className="h-8 w-8" />
-                        {language === 'es' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
-                      </button>
+                    <button
+                      type="button"
+                      className="transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 mt-1 px-1.5  text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                      <img title="ko-fi" src="/ko-fi.png" className="h-8 w-8" />
+                      {language === 'es' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
+                    </button>
                   </Link>
                 </div>
                 <div className="flex justify-end">

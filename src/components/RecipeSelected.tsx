@@ -7,8 +7,8 @@ import { Tooltip } from '@material-tailwind/react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { toast } from 'react-hot-toast'
 import Timer from '../components/Timer'
-
-export default function Recipe({ ingredients, steps, recipeInfo, language }) {
+import { track } from '@amplitude/analytics-node'
+export default function Recipe({ ingredients, steps, recipeInfo, language, userId }) {
   const [base64, setBase64] = useState('')
   const [gptResults, setGptResults] = useState([])
   const [gettingResponse, setGettingResponse] = useState(false)
@@ -61,12 +61,10 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     })
 
     const data = await res.json()
-    console.log('data', data)
     setBase64(data.base64)
   }
 
   async function firstRender(recipeInfo) {
-    console.log('recipeInfo is that: ', recipeInfo)
     try {
       const response = await fetch('/api/recipeName', {
         method: 'POST',
@@ -115,6 +113,13 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
       setGptResults(gptResults.concat(data.result))
       await speak(data.result, language)
       startSpeechToText()
+      track(
+        'UserSentMessage',
+        {},
+        {
+          user_id: userId,
+        }
+      )
     } catch (error) {
       // Consider implementing your own error handling logic here
 
@@ -145,13 +150,11 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   }
 
   const pauseConversation = () => {
-    console.log('im going in here')
     stopSpeechToText()
     return setConversationPlaying(false)
   }
 
   const playConversation = () => {
-    console.log('im going on the paly part')
     startSpeechToText()
     return setConversationPlaying(true)
   }
@@ -184,7 +187,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   })
 
   useEffect(() => {
-    console.log('XD', results)
     speechSynthesis.cancel()
     if (results.length === 0) {
       return
@@ -210,8 +212,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     }
   }, [recipeName])
 
-  console.log('wtf', language)
-
   useEffect(() => {
     // Call the findMinutes function for each step
     const fetchMinutes = async () => {
@@ -224,8 +224,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     }
     fetchMinutes()
   }, [])
-
-  console.log('wtf', minutes)
 
   return (
     <div className="bg-white">
@@ -261,7 +259,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
             <div className="border-t border-gray-200 pt-4">
               <dt className="font-medium text-gray-900">{language === 'es-ES' ? 'Pasos' : 'Steps'}</dt>
               {/*  */}
-              {steps.map((step) => {
+              {steps.map((step, index) => {
                 const className =
                   minutes[step] === null
                     ? 'mt-2 text-sm text-gray-500'
@@ -269,6 +267,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
                 const handleClick = minutes[step] !== null ? () => handleTimers(minutes[step] * 60) : () => {}
                 return minutes[step] !== null ? (
                   <Tooltip
+                    key={step}
                     content={`Click to set a ${minutes[step]} minutes timer`}
                     className="inline-flex items-center rounded border border-transparent bg-[#304483] px-2.5 py-0.5 text-xs font-medium text-white shadow-sm "
                     animate={{
@@ -276,7 +275,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
                       unmount: { scale: 0, y: 25 },
                     }}
                   >
-                    <dd onClick={handleClick} key={step} className={className}>
+                    <dd key={index} onClick={handleClick} className={className}>
                       {step}
                     </dd>
                   </Tooltip>
