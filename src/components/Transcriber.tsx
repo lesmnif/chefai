@@ -121,6 +121,7 @@ export default function Transcriber({ language }) {
     <main className="text-center">
       {isReady ? (
         <RecipeSelection
+          userId={'lol'}
           language={'en-US'}
           ingredients={recipe.ingredients}
           steps={recipe.instructions}
