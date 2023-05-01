@@ -153,7 +153,14 @@ export default function Home({ supabaseClient, session }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: query, language: language, system: system, username: trueUsername }),
+        body: JSON.stringify({
+          query: query,
+          language: language,
+          system: system,
+          username: trueUsername,
+          userId: session?.user?.id,
+          event: 'UserGeneratedRecipe'
+        }),
       })
 
       const data = await response.json()
@@ -164,15 +171,6 @@ export default function Home({ supabaseClient, session }) {
       const recipe = ParseRecipe(data.result, language)
       setRecipeInfo(data.result)
       setRecipe(recipe)
-
-      const { result, errorTeapot } = await fetch('/api/analytics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ event: 'UserGeneratedRecipe', language: language, userId: session?.user?.id }),
-      })
-      console.log('bro wtf xd ', result, errorTeapot)
     } catch (error) {
       setGettingResponse(false)
       // Consider implementing your own error handling logic here

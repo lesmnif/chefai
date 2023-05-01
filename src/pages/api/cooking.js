@@ -1,4 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai'
+import { track } from '@amplitude/analytics-node'
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,7 +21,9 @@ export default async function (req, res) {
   const recipeName = req.body.recipeName
   const steps = req.body.steps || []
   const language = req.body.language || 'en'
-
+  const event = req.body.event
+  const userId = req.body.userId
+  
   if (questions.length === 0) {
     res.status(400).json({
       error: {
@@ -85,6 +88,15 @@ export default async function (req, res) {
       top_p: 1,
       temperature: 0.7,
     })
+    track(
+      event,
+      {
+        language: language,
+      },
+      {
+        user_id: userId,
+      }
+    )
     res.status(200).json({ result: completion.data.choices[0].message.content })
   } catch (error) {
     // Consider adjusting the error handling logic for your use case

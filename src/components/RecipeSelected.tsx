@@ -100,6 +100,8 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
           recipeName: recipeName,
           steps: JSON.stringify(steps),
           language: language,
+          userId: userId,
+          event: 'UserSentMessage',
         }),
       })
 
@@ -113,13 +115,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
       setGptResults(gptResults.concat(data.result))
       await speak(data.result, language)
       startSpeechToText()
-      await fetch('/api/analytics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ event: 'UserSentMessage', language: language, userId: userId }),
-      })
     } catch (error) {
       // Consider implementing your own error handling logic here
       console.log(error)
