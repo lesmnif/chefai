@@ -122,8 +122,8 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
       })
     } catch (error) {
       // Consider implementing your own error handling logic here
-
-      alert('ask again please')
+      console.log(error)
+      // alert('ask again please')
     }
   }
 

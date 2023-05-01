@@ -54,7 +54,8 @@ export default function Transcriber({ language }) {
         return gptResponse(results, true)
       }
       // Consider implementing your own error handling logic here
-      alert(error.message)
+      console.log(error)
+      // alert(error.message)
     }
   }
 

@@ -165,18 +165,19 @@ export default function Home({ supabaseClient, session }) {
       setRecipeInfo(data.result)
       setRecipe(recipe)
 
-      await fetch('/api/analytics', {
+      const { result, errorTeapot } = await fetch('/api/analytics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ event: 'UserGeneratedRecipe', language: language, userId: session?.user?.id }),
       })
+      console.log('bro wtf xd ', result, errorTeapot)
     } catch (error) {
       setGettingResponse(false)
       // Consider implementing your own error handling logic here
-      console.error(error)
-      alert(error.message)
+      console.log(error.message)
+      // alert(error.message)
     }
   }
 

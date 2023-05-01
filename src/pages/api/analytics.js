@@ -17,6 +17,6 @@ export default async function (req, res) {
     )
     res.status(200).json({ result: 'Succeed' })
   } catch (error) {
-    console.log(error)
+    res.status(418).json({ errorTeapot: 'AdBlock' })
   }
 }
