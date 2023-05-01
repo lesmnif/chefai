@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react'
 import useSpeechToText from '../hooks/speech-to-text/speech-to-text'
 import Loader from './Loader'
 import GetTimers from '../functions/GetTimers'
-import TimersButtons from './TimersButtons'
 import { speak } from '../functions/text-to-speech'
+import { Tooltip } from '@material-tailwind/react'
+import { CountdownCircleTimer } from 'react-countdown-circle-timer'
+import { toast } from 'react-hot-toast'
+import Timer from '../components/Timer'
 
 export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   const [base64, setBase64] = useState('')
@@ -14,6 +17,29 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   const [recipeName, setRecipeName] = useState(null)
   const [timers, setTimers] = useState([])
   const [minutes, setMinutes] = useState({})
+
+  const timerToast = () =>
+    toast.custom(
+      <CountdownCircleTimer
+        isPlaying
+        duration={7}
+        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+        colorsTime={[7, 5, 2, 0]}
+      >
+        {({ remainingTime }) => remainingTime}
+      </CountdownCircleTimer>
+    )
+
+  useEffect(() => {
+    toast(
+      language === 'es'
+        ? 'Haz click en el texto resaltado para empezar el timer correspondiente!'
+        : 'Click on the highlighted text to set the correspondent timer!',
+      {
+        icon: '⏱️',
+      }
+    )
+  }, [])
 
   function findMinutes(text) {
     const regex = /(\d+)\s*(mins?|minutes?|min)/gi // modified regular expression to match different patterns for minutes
@@ -94,6 +120,13 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
 
       alert('ask again please')
     }
+  }
+
+  const handleTimers = (time) => {
+    return toast((t) => <Timer time={time} toastId={t.id} language={language} />, {
+      position: 'top-right',
+      duration: Infinity,
+    })
   }
 
   const firstMessage = () => {
@@ -198,7 +231,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     <div className="bg-white">
       <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
         <div>
-          <TimersButtons timers={timers} />
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             {recipeName && recipeName}
             <button
@@ -230,11 +262,28 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
               <dt className="font-medium text-gray-900">{language === 'es-ES' ? 'Pasos' : 'Steps'}</dt>
               {/*  */}
               {steps.map((step) => {
-                const className = minutes[step] === null ? 'mt-2 text-sm text-gray-500' : 'mt-2 text-sm text-red-500'
-                const handleClick = minutes[step] !== null ? () => console.log('XD') : () => {}
-                return (
+                const className =
+                  minutes[step] === null
+                    ? 'mt-2 text-sm text-gray-500'
+                    : 'mt-2 text-sm text-blue-700 hover:cursor-pointer'
+                const handleClick = minutes[step] !== null ? () => handleTimers(minutes[step] * 60) : () => {}
+                return minutes[step] !== null ? (
+                  <Tooltip
+                    content={`Click to set a ${minutes[step]} minutes timer`}
+                    className="inline-flex items-center rounded border border-transparent bg-[#304483] px-2.5 py-0.5 text-xs font-medium text-white shadow-sm "
+                    animate={{
+                      mount: { scale: 1.2, y: 0 },
+                      unmount: { scale: 0, y: 25 },
+                    }}
+                  >
+                    <dd onClick={handleClick} key={step} className={className}>
+                      {step}
+                    </dd>
+                  </Tooltip>
+                ) : (
                   <dd onClick={handleClick} key={step} className={className}>
                     {step}
+                    {minutes[step]}
                   </dd>
                 )
               })}

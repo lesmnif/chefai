@@ -13,6 +13,7 @@ import { useUser } from '@supabase/auth-helpers-react'
 import { toast } from 'react-hot-toast'
 import getFirstTwoChars from '../functions/firstTwoChars'
 
+
 const RecipeSelection = dynamic(() => import('../components/RecipeSelected'), {
   ssr: false,
 })
@@ -190,14 +191,16 @@ export default function Home({ supabaseClient, session }) {
             <header className="absolute inset-x-0 top-0 z-50">
               <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
                 <div className="flex lg:flex-1">
+                  {' '}
                   <Link href="https://ko-fi.com/bogdan_codes" className="-m-1.5 p-1.5 font-bold text-lg ">
-                    <button
-                      type="button"
-                      className="transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 mt-1 px-1.5  text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                      <img title="ko-fi" src="/ko-fi.png" className="h-8 w-8" />
-                      {language === 'es' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
-                    </button>
+                   
+                      <button
+                        type="button"
+                        className="transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 mt-1 px-1.5  text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      >
+                        <img title="ko-fi" src="/ko-fi.png" className="h-8 w-8" />
+                        {language === 'es' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
+                      </button>
                   </Link>
                 </div>
                 <div className="flex justify-end">
@@ -207,7 +210,7 @@ export default function Home({ supabaseClient, session }) {
                     onClick={() => setMobileMenuOpen(true)}
                   >
                     <span className="sr-only">Open main menu</span>
-                    <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                    <Bars3Icon className="h-6 w-6 hover:text-indigo-600" aria-hidden="true" />
                   </button>
                 </div>
                 <div className="hidden lg:flex lg:gap-x-12"></div>
@@ -231,7 +234,7 @@ export default function Home({ supabaseClient, session }) {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <span className="sr-only">Close menu</span>
-                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                      <XMarkIcon className="h-6 w-6 hover:text-indigo-600" aria-hidden="true" />
                     </button>
                   </div>
                   <div className="mt-6 flow-root">
@@ -277,7 +280,7 @@ export default function Home({ supabaseClient, session }) {
                                 type="checkbox"
                                 checked={selectedCheckboxLanguage === 'es'}
                                 onChange={handleCheckboxChangeLanguage}
-                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer"
                               />
                             </div>
                             <div className="ml-3 text-sm leading-6">
@@ -296,7 +299,7 @@ export default function Home({ supabaseClient, session }) {
                                 type="checkbox"
                                 checked={selectedCheckboxLanguage === 'en'}
                                 onChange={handleCheckboxChangeLanguage}
-                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer"
                               />
                             </div>
                             <div className="ml-3 text-sm leading-6">
@@ -329,7 +332,7 @@ export default function Home({ supabaseClient, session }) {
                                 type="checkbox"
                                 checked={selectedCheckboxSystem === 'metric'}
                                 onChange={handleCheckboxChangeSystem}
-                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer"
                               />
                             </div>
                             <div className="ml-3 text-sm leading-6">
@@ -348,7 +351,7 @@ export default function Home({ supabaseClient, session }) {
                                 type="checkbox"
                                 checked={selectedCheckboxSystem === 'imperial'}
                                 onChange={handleCheckboxChangeSystem}
-                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer"
                               />
                             </div>
                             <div className="ml-3 text-sm leading-6">
@@ -366,13 +369,22 @@ export default function Home({ supabaseClient, session }) {
                             {language === 'es' ? 'Guardar' : 'Update'}
                           </button>
                         </div>
+                        <div className="absolute left-8 bottom-10">
+                          <p className="font-bold"> Support, feedback or bugs: </p>
+                          <p>
+                            <a href="mailto:support@cheffyai.com" className="hover:text-indigo-600">
+                              support@cheffyai.com
+                            </a>
+                          </p>
+                        </div>
+
                         <div>
                           <div className="absolute right-8 bottom-8">
                             <button
                               onClick={() => {
                                 supabaseClient.auth.signOut()
                               }}
-                              className="px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-100 rounded-lg"
+                              className="px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-100 hover:text-indigo-600 rounded-lg"
                             >
                               Log out
                             </button>

@@ -49,7 +49,6 @@ const generateImage = async (prompt: string): Promise<GenerationResponse> => {
 }
 
 export default async function (req, res) {
-    console.log("this is my request body", req.body)
   if (req.method !== 'POST') {
     return res.status(400).json({ error: 'Method not supported' })
   }
