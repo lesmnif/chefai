@@ -176,7 +176,7 @@ export default function Home({ supabaseClient, session }) {
   return (
     <div>
       <Head>
-        <title>ChefAI</title>
+        <title>Cheffy AI</title>
       </Head>
       {recipe ? (
         <RecipeSelection

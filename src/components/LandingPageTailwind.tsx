@@ -104,8 +104,8 @@ export default function Landing({ supabaseClient, session }) {
                 </h1>
                 <p className="mt-6 text-lg leading-8 text-gray-600">
                   {language === 'es'
-                    ? ' ¡Dile adiós a las recetas aburridas y hola a Chef AI!'
-                    : 'Say goodbye to boring recipes and hello to Chef AI!'}
+                    ? ' ¡Dile adiós a las recetas aburridas y hola a Cheffy AI!'
+                    : 'Say goodbye to boring recipes and hello to Cheffy AI!'}
                   <br />{' '}
                   {language === 'es'
                     ? `Un asistente de cocina en tiempo real que te ayuda a no volver a quedarte sin ideas de comidas. Con la guía de manos libres, cocinar nunca ha sido tan fácil.`
