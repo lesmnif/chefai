@@ -19,7 +19,7 @@ export default async function (req, res) {
   const language = req.body.language || 'en'
   const username = req.body.username || ''
   const system = req.body.system || ''
-  console.log('wtffffffffffffffffffffffff', username, req.body.username)
+
   if (query.length < 5) {
     res.status(400).json({
       error: {

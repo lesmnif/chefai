@@ -13,6 +13,18 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
   const [introMessage, setIntroMessage] = useState(null)
   const [recipeName, setRecipeName] = useState(null)
   const [timers, setTimers] = useState([])
+  const [minutes, setMinutes] = useState({})
+
+  function findMinutes(text) {
+    const regex = /(\d+)\s*(mins?|minutes?|min)/gi // modified regular expression to match different patterns for minutes
+    const match = regex.exec(text) // search for a match in the text
+    if (match) {
+      const value = parseInt(match[1]) // extract the number of minutes from the match
+      return value // return the value in minutes
+    } else {
+      return null // return null if no match is found
+    }
+  }
 
   const fetchImage = async (recipeName) => {
     const res = await fetch('/api/text-to-image', {
@@ -165,7 +177,22 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
     }
   }, [recipeName])
 
-  console.log("wtf",  language)
+  console.log('wtf', language)
+
+  useEffect(() => {
+    // Call the findMinutes function for each step
+    const fetchMinutes = async () => {
+      const newMinutes = {}
+      for (const step of steps) {
+        const value = await findMinutes(step)
+        newMinutes[step] = value
+      }
+      setMinutes(newMinutes)
+    }
+    fetchMinutes()
+  }, [])
+
+  console.log('wtf', minutes)
 
   return (
     <div className="bg-white">
@@ -202,11 +229,15 @@ export default function Recipe({ ingredients, steps, recipeInfo, language }) {
             <div className="border-t border-gray-200 pt-4">
               <dt className="font-medium text-gray-900">{language === 'es-ES' ? 'Pasos' : 'Steps'}</dt>
               {/*  */}
-              {steps.map((step) => (
-                <dd key={step} className="mt-2 text-sm text-gray-500">
-                  {step}
-                </dd>
-              ))}
+              {steps.map((step) => {
+                const className = minutes[step] === null ? 'mt-2 text-sm text-gray-500' : 'mt-2 text-sm text-red-500'
+                const handleClick = minutes[step] !== null ? () => console.log('XD') : () => {}
+                return (
+                  <dd onClick={handleClick} key={step} className={className}>
+                    {step}
+                  </dd>
+                )
+              })}
             </div>
           </dl>
         </div>
