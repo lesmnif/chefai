@@ -1,38 +1,145 @@
-import React, { useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import useSpeechToText from '../hooks/speech-to-text/speech-to-text'
 import Loader from './Loader'
-import GetTimers from '../functions/GetTimers'
 import { speak } from '../functions/text-to-speech'
 import { Tooltip } from '@material-tailwind/react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { toast } from 'react-hot-toast'
 import Timer from '../components/Timer'
 import { track } from '@amplitude/analytics-node'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+
+const timerToast = () =>
+  toast.custom(
+    <CountdownCircleTimer
+      isPlaying
+      duration={7}
+      colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+      colorsTime={[7, 5, 2, 0]}
+    >
+      {({ remainingTime }) => remainingTime}
+    </CountdownCircleTimer>
+  )
+
+function findMinutes(text) {
+  const regex = /(\d+)\s*(mins?|minutes?|min)/gi // modified regular expression to match different patterns for minutes
+  const match = regex.exec(text) // search for a match in the text
+  if (match) {
+    const value = parseInt(match[1]) // extract the number of minutes from the match
+    return value // return the value in minutes
+  } else {
+    return null // return null if no match is found
+  }
+}
+
+const fetchImage = async (recipeName: string) => {
+  const res = await fetch('/api/text-to-image', {
+    method: 'POST',
+    body: JSON.stringify({
+      prompt: `${recipeName}, Editorial Photography, Photography, Shot on 70mm lens, Depth of Field, Bokeh, DOF, Tilt Blur, Shutter Speed 1/1000, F/22, White Balance, 32k, Super-Resolution, white background`,
+    }),
+  })
+
+  const data = await res.json()
+  return data.base64
+}
+
+const fetchRecipeName = async (recipeInfo) => {
+  try {
+    const response = await fetch('/api/recipeName', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        recipeInfo: recipeInfo,
+      }),
+    })
+
+    const data = await response.json()
+    if (response.status !== 200) {
+      throw data.error || new Error(`Request failed with status ${response.status}`)
+    }
+    return data.result
+  } catch (error) {
+    toast.error('Something went wrong generating your recipee. Try again later or contact support.')
+    return console.log('My error is:', error)
+  }
+}
+
+const fetchGPTResponse = async ({
+  questions,
+  gptResults,
+  recipeName,
+  steps,
+  language,
+  userId,
+}: {
+  questions: string[]
+  gptResults: string[]
+  steps: string[]
+  language: string
+  recipeName: string
+  userId: string
+}) => {
+  const response = await fetch('/api/cooking', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      questions: questions,
+      gptResponses: gptResults,
+      recipeName: recipeName,
+      steps: JSON.stringify(steps),
+      language: language,
+      userId: userId,
+    }),
+  })
+
+  const data = await response.json()
+  if (response.status !== 200) {
+    throw data.error || new Error(`Request failed with status ${response.status}`)
+  }
+
+  return data.result
+}
+
+const handleTimers = (time, language) => {
+  return toast((t) => <Timer time={time} toastId={t.id} language={language} />, {
+    position: 'top-right',
+    duration: Infinity,
+  })
+}
+
+const getIntroMessage = (language: string, recipeName: string) => {
+  switch (language) {
+    case 'es-ES':
+      return `Vamos a empezar a cocinar ${recipeName}. Asegúrate de preguntar cualquier duda que puedas tener, ¿listo para empezar?`
+    case 'en-US':
+    default:
+      return `We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have, ready to start?`
+  }
+}
+
 export default function Recipe({ ingredients, steps, recipeInfo, language, userId }) {
   const [base64, setBase64] = useState('')
   const [gptResults, setGptResults] = useState([])
-  const [gettingResponse, setGettingResponse] = useState(false)
-  const [conversationPlaying, setConversationPlaying] = useState(false)
+  const [isFetchingGPT, setIsFetchingGPT] = useState(false)
+  const [hasConversationStarted, setHasConversationStarted] = useState(false)
   const [introMessage, setIntroMessage] = useState(null)
   const [recipeName, setRecipeName] = useState(null)
-  const [timers, setTimers] = useState([])
   const [minutes, setMinutes] = useState({})
+  const [transcriptionResults, setTranscriptionResults] = useState([])
 
-  const timerToast = () =>
-    toast.custom(
-      <CountdownCircleTimer
-        isPlaying
-        duration={7}
-        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-        colorsTime={[7, 5, 2, 0]}
-      >
-        {({ remainingTime }) => remainingTime}
-      </CountdownCircleTimer>
-    )
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition, finalTranscript } =
+    useSpeechRecognition()
+
+  const isRecording = listening
 
   useEffect(() => {
     toast(
-      language === 'es'
+      language === 'es-ES'
         ? 'Haz click en el texto resaltado para empezar el timer correspondiente!'
         : 'Click on the highlighted text to set the correspondent timer!',
       {
@@ -41,205 +148,177 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
     )
   }, [])
 
-  function findMinutes(text) {
-    const regex = /(\d+)\s*(mins?|minutes?|min)/gi // modified regular expression to match different patterns for minutes
-    const match = regex.exec(text) // search for a match in the text
-    if (match) {
-      const value = parseInt(match[1]) // extract the number of minutes from the match
-      return value // return the value in minutes
-    } else {
-      return null // return null if no match is found
+  const generateImage = async (recipeName) => {
+    const base64Data = await fetchImage(recipeName)
+    setBase64(base64Data)
+  }
+
+  async function generateRecipeName(recipeInfo) {
+    const recipeName = await fetchRecipeName(recipeInfo)
+    if (recipeName) {
+      setRecipeName(recipeName)
     }
   }
 
-  const fetchImage = async (recipeName) => {
-    const res = await fetch('/api/text-to-image', {
-      method: 'POST',
-      body: JSON.stringify({
-        prompt: `A tasty ${recipeName} dish`,
-      }),
-    })
-
-    const data = await res.json()
-    setBase64(data.base64)
-  }
-
-  async function firstRender(recipeInfo) {
+  async function generateGptResponse(questions) {
     try {
-      const response = await fetch('/api/recipeName', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          recipeInfo: recipeInfo,
-        }),
-      })
-
-      const data = await response.json()
-      if (response.status !== 200) {
-        throw data.error || new Error(`Request failed with status ${response.status}`)
+      if (isFetchingGPT) {
+        stopSpeechToText()
+        return
       }
-      setRecipeName(data.result)
-    } catch (error) {
-      return console.log('My error is:', error)
-    }
-  }
-
-  async function gptResponse(questions) {
-    try {
-      setGettingResponse(true)
-      const response = await fetch('/api/cooking', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          questions: questions,
-          gptResponses: gptResults,
-          recipeName: recipeName,
-          steps: JSON.stringify(steps),
-          language: language,
-          userId: userId,
-          event: 'UserSentMessage',
-        }),
-      })
-
-      const data = await response.json()
-      if (response.status !== 200) {
-        throw data.error || new Error(`Request failed with status ${response.status}`)
-      }
-
-      setGettingResponse(false)
-
-      setGptResults(gptResults.concat(data.result))
-      await speak(data.result, language)
+      stopSpeechToText()
+      setIsFetchingGPT(true)
+      const gptResponse = await fetchGPTResponse({ questions, gptResults, recipeName, steps, language, userId })
+      SpeechRecognition.abortListening()
+      setGptResults(gptResults.concat(gptResponse))
+      setIsFetchingGPT(false)
+      await speak(gptResponse, language)
       startSpeechToText()
     } catch (error) {
       // Consider implementing your own error handling logic here
       console.log(error)
-      // alert('ask again please')
+      toast.error('Something went wrong, try again or contact support')
+      await speak('Error', language)
+      setIsFetchingGPT(false)
     }
   }
 
-  const handleTimers = (time) => {
-    return toast((t) => <Timer time={time} toastId={t.id} language={language} />, {
-      position: 'top-right',
-      duration: Infinity,
-    })
-  }
-
-  const firstMessage = () => {
-    if (language === 'es-ES') {
-      const message = `Vamos a empezar a cocinar ${recipeName}. Asegúrate de preguntar cualquier duda que puedas tener, ¿listo para empezar?`
-      setIntroMessage(
-        `Vamos a empezar a cocinar ${recipeName}. Asegúrate de preguntar cualquier duda que puedas tener, ¿listo para empezar?`
-      )
-      speak(message, language).then(startSpeechToText)
-    } else {
-      const message = `We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have, ready to start?`
-      setIntroMessage(`We're going to start cooking ${recipeName}. Make sure to ask any doubts that you may have!`)
-      speak(message, language).then(startSpeechToText)
-    }
-    setConversationPlaying(true)
+  const startConversation = async () => {
+    setHasConversationStarted(true)
+    const message = getIntroMessage(language, recipeName)
+    await speak(message, language)
+    startSpeechToText()
   }
 
   const pauseConversation = () => {
     stopSpeechToText()
-    return setConversationPlaying(false)
+    return setHasConversationStarted(false)
   }
 
   const playConversation = () => {
-    startSpeechToText()
-    return setConversationPlaying(true)
+    if (!isFetchingGPT) {
+      startSpeechToText()
+      return setHasConversationStarted(true)
+    }
   }
 
   const handleButtonClick = () => {
-    if (results.length === 0 && !conversationPlaying && !introMessage) {
-      return firstMessage()
+    if (transcriptionResults.length === 0 && !hasConversationStarted) {
+      console.log('wtf')
+      return startConversation()
     }
-    if (conversationPlaying && !isRecording) {
+    if (hasConversationStarted && !isRecording) {
       speechSynthesis.cancel()
-      return setConversationPlaying(false)
+      return setHasConversationStarted(false)
     }
     return isRecording ? pauseConversation() : playConversation()
   }
 
-  const { error, interimResult, isRecording, results, startSpeechToText, stopSpeechToText } = useSpeechToText({
-    timeout: 20000,
-    continuous: false,
-    speechRecognitionProperties: {
-      interimResults: true,
-      lang: language,
-    },
-    crossBrowser: true,
-    useOnlyGoogleCloud: language === 'es-ES' ? true : false,
-    googleCloudRecognitionConfig: {
-      languageCode: language,
-    },
-    googleApiKey: process.env.GOOGLE_CLOUD_API_KEY,
-    useLegacyResults: false,
-  })
+  const startSpeechToText = () => {
+    if (!isFetchingGPT) {
+      SpeechRecognition.startListening({
+        continuous: true,
+        language: language,
+      })
+    }
+  }
+
+  const stopSpeechToText = () => {
+    SpeechRecognition.stopListening()
+  }
+
+  useEffect(() => {
+    setTranscriptionResults([])
+  }, [])
+
+  useEffect(() => {
+    if (!finalTranscript) {
+      return
+    }
+    console.log(finalTranscript)
+    setTranscriptionResults((res) => [...res, { transcript: finalTranscript }])
+    resetTranscript()
+  }, [finalTranscript])
+
+  // const { error, isRecording, results, startSpeechToText, stopSpeechToText } = useSpeechToText({
+  //   timeout: 20000,
+  //   continuous: false,
+  //   speechRecognitionProperties: {
+  //     interimResults: true,
+  //     lang: language,
+  //   },
+  //   crossBrowser: true,
+  //   useOnlyGoogleCloud: language === 'es-ES' ? true : false,
+  //   googleCloudRecognitionConfig: {
+  //     languageCode: language,
+  //   },
+  //   googleApiKey: process.env.GOOGLE_CLOUD_API_KEY,
+  //   useLegacyResults: false,
+  // })
 
   useEffect(() => {
     speechSynthesis.cancel()
-    if (results.length === 0) {
+    if (transcriptionResults.length === 0) {
       return
     }
-    gptResponse(results)
-  }, [results])
+    generateGptResponse(transcriptionResults)
+  }, [transcriptionResults])
+
+  useEffect(() => {
+    console.log('this is my listening', listening)
+  }, [listening])
 
   useEffect(() => {
     if (recipeInfo) {
-      firstRender(recipeInfo)
-      return
+      generateRecipeName(recipeInfo)
+    }
+
+    return () => {
+      speechSynthesis.cancel()
     }
   }, [])
 
   useEffect(() => {
-    if (steps) {
-      const timers = GetTimers(steps)
-      setTimers(timers)
-    }
     if (recipeName) {
-      fetchImage(recipeName)
-      return
+      generateImage(recipeName)
     }
   }, [recipeName])
 
   useEffect(() => {
     // Call the findMinutes function for each step
-    const fetchMinutes = async () => {
-      const newMinutes = {}
-      for (const step of steps) {
-        const value = await findMinutes(step)
-        newMinutes[step] = value
-      }
-      setMinutes(newMinutes)
+    const newMinutes = {}
+    for (const step of steps) {
+      const value = findMinutes(step)
+      newMinutes[step] = value
     }
-    fetchMinutes()
+    setMinutes(newMinutes)
   }, [])
 
   return (
     <div className="bg-white">
       <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
         <div>
+          <button onClick={() => SpeechRecognition.stopListening()}> click me to stop speechtotext</button>
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             {recipeName && recipeName}
             <button
               className={
-                !conversationPlaying
+                !hasConversationStarted
                   ? 'rounded-full  bg-blue-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600'
                   : 'rounded-full  bg-red-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600'
               }
-              onClick={handleButtonClick}
+              onClick={() => handleButtonClick()}
             >
-              {conversationPlaying ? 'Pause Cooking' : results.length !== 0 ? 'Resume Cooking' : 'Start Cooking'}
+              {hasConversationStarted
+                ? 'Pause Cooking'
+                : transcriptionResults.length !== 0
+                ? 'Resume Cooking'
+                : 'Start Cooking'}
             </button>
           </h2>
           <p className="text-xl font-semibold mt-5">
             {isRecording && (language === 'es-ES' ? 'Escuchando...' : 'Listening...')}
-            {gettingResponse && (language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response')}
+            {isFetchingGPT && (language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response')}
           </p>
           <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
             <div className="border-t border-gray-200 pt-4">
@@ -259,7 +338,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
                   minutes[step] === null
                     ? 'mt-2 text-sm text-gray-500'
                     : 'mt-2 text-sm text-blue-700 hover:cursor-pointer'
-                const handleClick = minutes[step] !== null ? () => handleTimers(minutes[step] * 60) : () => {}
+                const handleClick = minutes[step] !== null ? () => handleTimers(minutes[step] * 60, language) : () => {}
                 return minutes[step] !== null ? (
                   <Tooltip
                     key={step}
@@ -270,7 +349,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
                       unmount: { scale: 0, y: 25 },
                     }}
                   >
-                    <dd key={index} onClick={handleClick} className={className}>
+                    <dd onClick={handleClick} className={className}>
                       {step}
                     </dd>
                   </Tooltip>

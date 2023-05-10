@@ -31,11 +31,12 @@ export default function SignUp({ supabaseClient }) {
       else if (data.user?.identities?.length === 0) {
         toast.error('User already registered')
       } else {
+        const realLanguage = language === 'es' ? 'es-ES' : 'en-US'
         await supabaseClient
           .from('profiles')
           .update({
             username,
-            language,
+            realLanguage,
           })
           .eq('id', data.user?.id)
         toast.success('Confirmation mail sent. Check your inbox.')

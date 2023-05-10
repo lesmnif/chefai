@@ -40,8 +40,10 @@
     "react-human-timer": "^1.0.1",
     "react-kofi-button": "^0.7.1",
     "react-router-dom": "^6.10.0",
+    "react-speech-recognition": "^3.10.0",
     "react-spinners": "^0.13.8",
     "react-timer-hook": "^3.0.5",
+    "regenerator-runtime": "^0.13.11",
     "touch-cli": "^0.0.1",
     "use-timer": "^2.0.1"
   },

@@ -41,7 +41,7 @@ export default function SignIn({ supabaseClient }) {
             {language === 'es' ? 'Inicia sesión' : 'Log in your account'}
           </h2>
         </div>
-
+        {/* <p onClick={() => supabaseClient.auth.resetPasswordForEmail("bogdan@fotescu.com")}>forgotpass</p> */}
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-6 shadow sm:rounded-lg sm:px-12 border  border-slate-200">
             <div className="mt-6 text-center">
@@ -270,7 +270,7 @@ export default function SignIn({ supabaseClient }) {
           <p className="mt-5 text-center text-sm text-gray-500">
             {language === 'es' ? 'No tienes cuenta?' : `Don't have an account?`}{' '}
             <Link href="/signup" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-            {language === 'es' ? 'Regístrate' : "Sign up"}
+              {language === 'es' ? 'Regístrate' : 'Sign up'}
             </Link>
           </p>
         </div>

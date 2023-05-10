@@ -17,7 +17,7 @@ export default async function (req, res) {
   }
 
   const query = req.body.query || []
-  const language = req.body.language || 'en'
+  const language = req.body.language || 'en-US'
   const username = req.body.username || ''
   const system = req.body.system || ''
   const event = req.body.event
@@ -32,7 +32,7 @@ export default async function (req, res) {
   }
 
   const messages =
-    language === 'es'
+    language === 'es-ES'
       ? [
           {
             role: 'system',
@@ -40,7 +40,7 @@ export default async function (req, res) {
           },
           {
             role: 'user',
-            content: `Mi nombre es ${username}. DEBES darme una receta de una oración, dándole un nombre, ingredientes e instrucciones. DEBES dar los ingredientes y las instrucciones con la palabra seguida de ":" como "Ingredientes:". Tienes que darme los ingredientes en unidades ${
+            content: `Mi nombre es ${username}. DEBES darme una receta de una oración, dándole un nombre, ingredientes e instrucciones. Siempre DEBES dar los ingredientes y las instrucciones con la palabra seguida de ":" como "Ingredientes:". Tienes que darme los ingredientes en unidades ${
               system === 'imperial' ? 'imperiales' : 'métricas'
             }. DEBES añadir el paso de cortar los ingredientes en el correspondiente lugar de las instrucciones.`,
           },
@@ -60,7 +60,7 @@ export default async function (req, res) {
           },
           {
             role: 'user',
-            content: `My name is ${username}. You MUST give me a recipe from one sentence, giving it a name, ingredients and instructions. You MUST give the ingredients and instructions with the word followed by ":" like "Ingredients:". You MUST give me the ingredients in ${system} units. You MUST add the chopping/cutting of the ingredientes in the following place in the instructions.`,
+            content: `My name is ${username}. You MUST give me a recipe from one sentence, giving it a name, ingredients and instructions. You MUST always give the ingredients and instructions with the word followed by ":" like "Ingredients:". You MUST give me the ingredients in ${system} units. You MUST add the chopping/cutting of the ingredientes in the following place in the instructions.`,
           },
           {
             role: 'assistant',

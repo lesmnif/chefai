@@ -28,6 +28,7 @@ const generateImage = async (prompt: string): Promise<GenerationResponse> => {
             text: prompt,
           },
         ],
+        negative_prompt: "b&w, drawing, painting, watermark, frame, people",
         cfg_scale: 7,
         style_preset: "enhance",
         clip_guidance_preset: "SLOW",

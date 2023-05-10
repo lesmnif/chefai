@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import Loader from '../components/Loader'
-import GetTimers from '../functions/GetTimers'
 import MainBox from '../components/MainBox'
 import { examples } from '../../examples'
 import ParseRecipe from '../functions/ParseRecipe'
@@ -53,12 +52,12 @@ export default function Home({ supabaseClient, session }) {
 
       let { data, error } = await supabaseClient.from('profiles').upsert(updates)
       if (error) throw error
-      toast.success(language === 'es' ? 'Nombre actualizado' : 'Name updated!')
+      toast.success(language === 'es-ES' ? 'Nombre actualizado' : 'Name updated!')
       setTimeout(function () {
         window.location.reload()
       }, 1000)
     } catch (error) {
-      alert(language === 'es' ? 'Error actualizando' : 'Error updating the data!')
+      alert(language === 'es-ES' ? 'Error actualizando' : 'Error updating the data!')
       console.log(error)
     }
   }
@@ -72,12 +71,12 @@ export default function Home({ supabaseClient, session }) {
 
       let { error } = await supabaseClient.from('profiles').upsert(updates)
       if (error) throw error
-      toast.success(language === 'es' ? 'Idioma actualizado' : 'Language updated!')
+      toast.success(language === 'es-ES' ? 'Idioma actualizado' : 'Language updated!')
       setTimeout(function () {
         window.location.reload()
       }, 1000)
     } catch (error) {
-      alert(language === 'es' ? 'Error actualizando' : 'Error updating the data!')
+      alert(language === 'es-ES' ? 'Error actualizando' : 'Error updating the data!')
       console.log(error)
     }
   }
@@ -93,13 +92,13 @@ export default function Home({ supabaseClient, session }) {
       let { error } = await supabaseClient.from('profiles').upsert(updates)
       if (error) throw error
       toast.success(
-        language === 'es' ? 'Medidas de los ingredientes actualizadas' : 'Ingredients measure system updated!'
+        language === 'es-ES' ? 'Medidas de los ingredientes actualizadas' : 'Ingredients measure system updated!'
       )
       setTimeout(function () {
         window.location.reload()
       }, 1000)
     } catch (error) {
-      alert(language === 'es' ? 'Error actualizando' : 'Error updating the data!')
+      alert(language === 'es-ES' ? 'Error actualizando' : 'Error updating the data!')
       console.log(error)
     }
   }
@@ -141,7 +140,7 @@ export default function Home({ supabaseClient, session }) {
   async function handleSubmitButton(query) {
     if (query.length < 5) {
       return alert(
-        language === 'es'
+        language === 'es-ES'
           ? 'Su solicitud debe tener al menos 5 caracteres.'
           : 'Your request must have at least 5 characters.'
       )
@@ -159,7 +158,7 @@ export default function Home({ supabaseClient, session }) {
           system: system,
           username: trueUsername,
           userId: session?.user?.id,
-          event: 'UserGeneratedRecipe'
+          event: 'UserGeneratedRecipe',
         }),
       })
 
@@ -190,7 +189,7 @@ export default function Home({ supabaseClient, session }) {
           ingredients={recipe.ingredients}
           steps={recipe.instructions}
           recipeInfo={recipeInfo}
-          language={language === 'es' ? 'es-ES' : 'en-US'}
+          language={language}
         />
       ) : (
         language && (
@@ -205,7 +204,7 @@ export default function Home({ supabaseClient, session }) {
                       className="transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 mt-1 px-1.5  text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                       <img title="ko-fi" src="/ko-fi.png" className="h-8 w-8" />
-                      {language === 'es' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
+                      {language === 'es-ES' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
                     </button>
                   </Link>
                 </div>
@@ -248,7 +247,7 @@ export default function Home({ supabaseClient, session }) {
                       <div className="space-y-2 py-3 font-extrabold text-lg">Settings</div>
                       <div className="py-6 flex-col">
                         <div>
-                          <h1 className="font-bold">{language === 'es' ? 'Nombre:' : 'Name:'}</h1>
+                          <h1 className="font-bold">{language === 'es-ES' ? 'Nombre:' : 'Name:'}</h1>
                           <div className="relative flex items-start my-3 ml-5">
                             <div>
                               <div className=" flex rounded-md shadow-sm">
@@ -268,30 +267,30 @@ export default function Home({ supabaseClient, session }) {
                                   onClick={() => updateUsername(username)}
                                   className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-white bg-indigo-600  hover:bg-indigo-500 ring-1 ring-inset "
                                 >
-                                  {language === 'es' ? 'Guardar' : 'Update'}
+                                  {language === 'es-ES' ? 'Guardar' : 'Update'}
                                 </button>
                               </div>
                             </div>
                           </div>
                         </div>
                         <div>
-                          <h1 className="font-bold">{language === 'es' ? 'Idioma' : 'Language:'}</h1>
+                          <h1 className="font-bold">{language === 'es-ES' ? 'Idioma' : 'Language:'}</h1>
                           <div className="relative flex items-start my-3 ml-5">
                             <div className="flex h-6 items-center">
                               <input
                                 id="spanish"
                                 aria-describedby="language-spanish"
                                 name="spanish"
-                                value="es"
+                                value="es-ES"
                                 type="checkbox"
-                                checked={selectedCheckboxLanguage === 'es'}
+                                checked={selectedCheckboxLanguage === 'es-ES'}
                                 onChange={handleCheckboxChangeLanguage}
                                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer"
                               />
                             </div>
                             <div className="ml-3 text-sm leading-6">
                               <label htmlFor="spanish" className="font-medium text-gray-900">
-                                {language === 'es' ? 'Español' : 'Spanish'}
+                                {language === 'es-ES' ? 'Español' : 'Spanish'}
                               </label>{' '}
                             </div>
                           </div>
@@ -301,16 +300,16 @@ export default function Home({ supabaseClient, session }) {
                                 id="english"
                                 aria-describedby="language-english"
                                 name="english"
-                                value="en"
+                                value="en-US"
                                 type="checkbox"
-                                checked={selectedCheckboxLanguage === 'en'}
+                                checked={selectedCheckboxLanguage === 'en-US'}
                                 onChange={handleCheckboxChangeLanguage}
                                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 hover:cursor-pointer"
                               />
                             </div>
                             <div className="ml-3 text-sm leading-6">
                               <label htmlFor="english" className="font-medium text-gray-900">
-                                {language === 'es' ? 'Inglés' : 'English'}
+                                {language === 'es-ES' ? 'Inglés' : 'English'}
                               </label>{' '}
                             </div>
                           </div>
@@ -320,13 +319,13 @@ export default function Home({ supabaseClient, session }) {
                             onClick={() => updateLanguage(selectedCheckboxLanguage)}
                             className="rounded bg-indigo-600 px-2 py-1 mt-5 ml-5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                           >
-                            {language === 'es' ? 'Guardar' : 'Update'}
+                            {language === 'es-ES' ? 'Guardar' : 'Update'}
                           </button>
                         </div>
                         <div className="">
                           <h1 className="font-bold mt-7">
                             {' '}
-                            {language === 'es' ? 'Medidas de los ingredientes:' : 'Ingredients Measures:'}
+                            {language === 'es-ES' ? 'Medidas de los ingredientes:' : 'Ingredients Measures:'}
                           </h1>
                           <div className="relative flex items-start my-3 ml-5">
                             <div className="flex h-6 items-center">
@@ -343,7 +342,7 @@ export default function Home({ supabaseClient, session }) {
                             </div>
                             <div className="ml-3 text-sm leading-6">
                               <label htmlFor="metric" className="font-medium text-gray-900">
-                                {language === 'es' ? 'Sistema métrico (15 gramos)' : 'Metric System (15 grams)'}
+                                {language === 'es-ES' ? 'Sistema métrico (15 gramos)' : 'Metric System (15 grams)'}
                               </label>{' '}
                             </div>
                           </div>
@@ -362,7 +361,7 @@ export default function Home({ supabaseClient, session }) {
                             </div>
                             <div className="ml-3 text-sm leading-6">
                               <label htmlFor="imperial" className="font-medium text-gray-900">
-                                {language === 'es' ? 'Sistema imperial (1/2 onzas)' : 'Imperial System (1/2 ounces) '}
+                                {language === 'es-ES' ? 'Sistema imperial (1/2 onzas)' : 'Imperial System (1/2 ounces) '}
                               </label>{' '}
                             </div>
                           </div>
@@ -372,7 +371,7 @@ export default function Home({ supabaseClient, session }) {
                             onClick={() => updateSystem(selectedCheckboxSystem)}
                             className="rounded bg-indigo-600 px-2 py-1 mt-5 ml-5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                           >
-                            {language === 'es' ? 'Guardar' : 'Update'}
+                            {language === 'es-ES' ? 'Guardar' : 'Update'}
                           </button>
                         </div>
                         <div className="absolute left-8 bottom-10">
