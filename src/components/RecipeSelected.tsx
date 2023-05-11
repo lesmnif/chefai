@@ -126,16 +126,15 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
   const [base64, setBase64] = useState('')
   const [gptResults, setGptResults] = useState([])
   const [isFetchingGPT, setIsFetchingGPT] = useState(false)
-  const [hasConversationStarted, setHasConversationStarted] = useState(false)
+  const [isConversationActive, setIsConversationActive] = useState(false)
   const [introMessage, setIntroMessage] = useState(null)
   const [recipeName, setRecipeName] = useState(null)
   const [minutes, setMinutes] = useState({})
   const [transcriptionResults, setTranscriptionResults] = useState([])
 
-  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition, finalTranscript } =
-    useSpeechRecognition()
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition, finalTranscript } = useSpeechRecognition()
 
-  const isRecording = listening
+  const isListening = listening
 
   useEffect(() => {
     toast(
@@ -161,19 +160,20 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
   }
 
   async function generateGptResponse(questions) {
+    console.log('IS FETCHING GPT???', isFetchingGPT)
     try {
       if (isFetchingGPT) {
-        stopSpeechToText()
+        stopListening()
         return
       }
-      stopSpeechToText()
+      stopListening()
       setIsFetchingGPT(true)
       const gptResponse = await fetchGPTResponse({ questions, gptResults, recipeName, steps, language, userId })
       SpeechRecognition.abortListening()
       setGptResults(gptResults.concat(gptResponse))
       setIsFetchingGPT(false)
       await speak(gptResponse, language)
-      startSpeechToText()
+      startListening()
     } catch (error) {
       // Consider implementing your own error handling logic here
       console.log(error)
@@ -184,38 +184,38 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
   }
 
   const startConversation = async () => {
-    setHasConversationStarted(true)
+    setIsConversationActive(true)
     const message = getIntroMessage(language, recipeName)
     await speak(message, language)
-    startSpeechToText()
+    startListening()
   }
 
   const pauseConversation = () => {
-    stopSpeechToText()
-    return setHasConversationStarted(false)
+    stopListening()
+    return setIsConversationActive(false)
   }
 
   const playConversation = () => {
     if (!isFetchingGPT) {
-      startSpeechToText()
-      return setHasConversationStarted(true)
+      startListening()
+      return setIsConversationActive(true)
     }
   }
 
-  const handleButtonClick = () => {
-    if (transcriptionResults.length === 0 && !hasConversationStarted) {
-      console.log('wtf')
+  const toggleConversationActive = () => {
+    if (transcriptionResults.length === 0 && !isConversationActive) {
       return startConversation()
     }
-    if (hasConversationStarted && !isRecording) {
+    if (isConversationActive && !isListening) {
       speechSynthesis.cancel()
-      return setHasConversationStarted(false)
+      return setIsConversationActive(false)
     }
-    return isRecording ? pauseConversation() : playConversation()
+    return isListening ? pauseConversation() : playConversation()
   }
 
-  const startSpeechToText = () => {
+  const startListening = () => {
     if (!isFetchingGPT) {
+      console.log('STARTING LISTENING -- SPEECH TO TEXT')
       SpeechRecognition.startListening({
         continuous: true,
         language: language,
@@ -223,7 +223,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
     }
   }
 
-  const stopSpeechToText = () => {
+  const stopListening = () => {
     SpeechRecognition.stopListening()
   }
 
@@ -303,13 +303,13 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
             {recipeName && recipeName}
             <button
               className={
-                !hasConversationStarted
+                !isConversationActive
                   ? 'rounded-full  bg-blue-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600'
                   : 'rounded-full  bg-red-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600'
               }
-              onClick={() => handleButtonClick()}
+              onClick={() => toggleConversationActive()}
             >
-              {hasConversationStarted
+              {isConversationActive
                 ? 'Pause Cooking'
                 : transcriptionResults.length !== 0
                 ? 'Resume Cooking'
@@ -317,7 +317,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
             </button>
           </h2>
           <p className="text-xl font-semibold mt-5">
-            {isRecording && (language === 'es-ES' ? 'Escuchando...' : 'Listening...')}
+            {isListening && (language === 'es-ES' ? 'Escuchando...' : 'Listening...')}
             {isFetchingGPT && (language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response')}
           </p>
           <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
