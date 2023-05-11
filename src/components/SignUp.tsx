@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { NewspaperIcon } from '@heroicons/react/24/outline'
 import getFirstTwoChars from '../functions/firstTwoChars'
+import ModalSignUp from '../components/ModalSignUp'
 
 export default function SignUp({ supabaseClient }) {
   const [isVisible, setIsVisible] = useState(false)
@@ -10,6 +11,7 @@ export default function SignUp({ supabaseClient }) {
   const [errorMsg, setErrorMsg] = useState(null)
   const [success, setSuccess] = useState(false)
   const [username, setUsername] = useState('')
+  const [open, setOpen] = useState(false)
 
   const language = getFirstTwoChars(navigator.language)
 
@@ -39,7 +41,7 @@ export default function SignUp({ supabaseClient }) {
             realLanguage,
           })
           .eq('id', data.user?.id)
-        toast.success('Confirmation mail sent. Check your inbox.')
+        setOpen(true)
       }
     } catch (error) {
       alert(error)
@@ -83,6 +85,7 @@ export default function SignUp({ supabaseClient }) {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-6 shadow sm:rounded-lg sm:px-12 border  border-slate-200">
             <div className="mt-6 text-center">
+              <ModalSignUp open={open} setOpen={setOpen} language={language} />
               {/* <a
                     href="#"
                     className="flex w-full items-center justify-center gap-3 rounded-md bg-[#1D9BF0] px-3 py-1.5 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D9BF0]"

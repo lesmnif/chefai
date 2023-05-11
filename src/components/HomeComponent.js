@@ -198,14 +198,11 @@ export default function Home({ supabaseClient, session }) {
               <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
                 <div className="flex lg:flex-1">
                   {' '}
-                  <Link href="https://ko-fi.com/bogdan_codes" className="-m-1.5 p-1.5 font-bold text-lg ">
-                    <button
-                      type="button"
-                      className="transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 mt-1 px-1.5  text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                      <img title="ko-fi" src="/ko-fi.png" className="h-8 w-8" />
-                      {language === 'es-ES' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
-                    </button>
+                  <Link
+                    href={language === 'es-ES' ? '/pricing/es-ES' : '/pricing/en-US'}
+                    className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-500"
+                  >
+                    {language === 'es-ES' ? 'Suscríbete' : 'Subscribe'}
                   </Link>
                 </div>
                 <div className="flex justify-end">
@@ -361,7 +358,9 @@ export default function Home({ supabaseClient, session }) {
                             </div>
                             <div className="ml-3 text-sm leading-6">
                               <label htmlFor="imperial" className="font-medium text-gray-900">
-                                {language === 'es-ES' ? 'Sistema imperial (1/2 onzas)' : 'Imperial System (1/2 ounces) '}
+                                {language === 'es-ES'
+                                  ? 'Sistema imperial (1/2 onzas)'
+                                  : 'Imperial System (1/2 ounces) '}
                               </label>{' '}
                             </div>
                           </div>

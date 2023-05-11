@@ -57,18 +57,15 @@ export default function Landing({ supabaseClient, session }) {
       <header className="absolute inset-x-0 top-0 z-50">
         <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
           <div className="flex lg:flex-1">
-            <Link href="https://ko-fi.com/bogdan_codes" className="-m-1.5 p-1.5 font-bold text-lg ">
-              <button
-                type="button"
-                className="transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:transform-none inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 mt-1 px-1.5  text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                <img title="ko-fi" src="/ko-fi.png" className="h-8 w-8" />
-                {language === 'es' ? '¡Apóyame en Ko-Fi!' : 'Support me on Ko-Fi!'}
-              </button>
+            <Link
+              href={language === 'es' ? '/pricing/es-ES' : '/pricing/en-US'}
+              className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-500"
+            >
+              {/* {language === 'es' ? 'Suscríbete' : 'Subscribe'} */}
             </Link>
           </div>
           <div className="lg:flex lg:flex-1 lg:justify-end">
-            <Link href="/signin" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-500">
+            <Link href="/signin" className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-500">
               {language === 'es' ? 'Inicia sesión' : 'Log in'}{' '}
               <span className="ml-0.5" aria-hidden="true">
                 &rarr;
@@ -118,7 +115,7 @@ export default function Landing({ supabaseClient, session }) {
                     href="/signup"
                     className="rounded-md bg-gradient-to-r from-blue-500 via-blue-700 to-gray-600 opacity-90 text-white  px-3.5 py-2.5 my-8 text-sm font-semibold shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 hover:from-blue-600 hover:via-blue-800 hover:to-gray-700"
                   >
-                    {language === 'es' ? 'Regístrate' : 'Get started and sign up'}
+                    {language === 'es' ? 'Regístrate y empieza gratis' : 'Sign up and start for free'}
                   </Link>
                   {/* <a
                     href="/transcribe/en-US"
