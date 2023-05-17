@@ -16,7 +16,6 @@ const tiers = [
       'Hands-free voice assistant',
       'Save unlimited recipes for later',
       'Share recipes with friends and family',
-      "We hear you. Suggest new features, we'll do it",
     ],
     featuresEs: [
       'Acceso a un número ilimitado de recetas',
@@ -24,7 +23,6 @@ const tiers = [
       'Asistente de voz manos libres',
       'Guarda un número ilimitado de recetas para más tarde',
       'Comparte recetas con amigos y familiares',
-      'Te escuchamos. Sugiere nuevas funciones y las añadiremos',
     ],
     featured: true,
   },

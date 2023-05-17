@@ -178,6 +178,13 @@ export default function Home({ supabaseClient, session }) {
     }
   }
 
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  // Function to toggle the state
+  const toggleAudio = () => {
+    setIsPlaying(!isPlaying)
+  }
+
   return (
     <div>
       <Head>

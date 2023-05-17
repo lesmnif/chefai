@@ -14,8 +14,8 @@ export default function parseRecipe(text, language) {
       recipe.intro += line
     }
 
-    if (line.endsWith(":")) {
-      currentSection = line.slice(0, -1).toLowerCase()
+    if (line.endsWith(":") || line.startsWith("**") && line.endsWith("**")) {
+      currentSection = line.replace(/\*\*/g, "").slice(0, -1).toLowerCase()
     } else {
       if (currentSection === "ingredients" || currentSection === "ingredientes") {
         introFound = true
@@ -26,8 +26,7 @@ export default function parseRecipe(text, language) {
     }
   }
   const recipeParts = recipe.intro.split(":")
-
-  // Return the first part of the recipe text
   recipe.intro = recipeParts[0]
+
   return recipe
 }

@@ -8,6 +8,10 @@ import { toast } from 'react-hot-toast'
 import Timer from '../components/Timer'
 import { track } from '@amplitude/analytics-node'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+import UseAnimations from 'react-useanimations'
+import microphone2 from 'react-useanimations/lib/microphone2'
+import SilencedMicrophone from '/mic_silenced.svg'
+import useSound from 'use-sound'
 
 const timerToast = () =>
   toast.custom(
@@ -127,12 +131,45 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
   const [gptResults, setGptResults] = useState([])
   const [isFetchingGPT, setIsFetchingGPT] = useState(false)
   const [isConversationActive, setIsConversationActive] = useState(false)
-  const [introMessage, setIntroMessage] = useState(null)
+  const [introMessageSent, setIntroMessageSent] = useState(false)
   const [recipeName, setRecipeName] = useState(null)
   const [minutes, setMinutes] = useState({})
   const [transcriptionResults, setTranscriptionResults] = useState([])
+  const [isCheffySpeaking, setIsCheffySpeaking] = useState(false)
 
-  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition, finalTranscript } = useSpeechRecognition()
+  const handleOkayCheffy = () => {
+    resetTranscript()
+    setIsConversationActive(true)
+  }
+
+  const commands = [
+    {
+      command: 'okay cheffy',
+      callback: (command, spokenPhrase, similarityRatio) => {
+        if (introMessageSent) {
+          handleOkayCheffy()
+        }
+      },
+      // If the spokenPhrase is "Benji", the message would be "Beijing and Benji are 40% similar"
+      isFuzzyMatch: true,
+      fuzzyMatchingThreshold: 0.2,
+    },
+    {
+      command: 'stop',
+      callback: () => pauseConversation(),
+    },
+    {
+      command: 'shut up',
+      callback: () => pauseConversation(),
+    },
+    {
+      command: 'Hello',
+      callback: () => speak('Hello there!', 'en-US'),
+    },
+  ]
+
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition, finalTranscript } =
+    useSpeechRecognition({ commands })
 
   const isListening = listening
 
@@ -146,6 +183,14 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
       }
     )
   }, [])
+
+  const handleStopSpeech = (toastId) => {
+    speechSynthesis.cancel()
+    setIsCheffySpeaking(false)
+    playConversation()
+    resetTranscript()
+    toast.dismiss(toastId)
+  }
 
   const generateImage = async (recipeName) => {
     const base64Data = await fetchImage(recipeName)
@@ -163,42 +208,110 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
     console.log('IS FETCHING GPT???', isFetchingGPT)
     try {
       if (isFetchingGPT) {
-        stopListening()
         return
       }
-      stopListening()
       setIsFetchingGPT(true)
+      setIsConversationActive(false)
+      const loadingToastId = toast.loading('Loading...', {
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#000',
+        },
+      })
       const gptResponse = await fetchGPTResponse({ questions, gptResults, recipeName, steps, language, userId })
-      SpeechRecognition.abortListening()
+      toast.dismiss(loadingToastId)
       setGptResults(gptResults.concat(gptResponse))
       setIsFetchingGPT(false)
+      setIsCheffySpeaking(true)
+      const toastId = speakingToast()
       await speak(gptResponse, language)
-      startListening()
+      toast.dismiss(toastId)
+      setIsCheffySpeaking(false)
+      resetTranscript()
+      setIsConversationActive(true)
+      setTimeout(() => {
+        setIsConversationActive(false)
+      }, 5000)
     } catch (error) {
+      if (error.error === 'interrupted') {
+        return
+      }
       // Consider implementing your own error handling logic here
       console.log(error)
+      toast.dismiss()
       toast.error('Something went wrong, try again or contact support')
       await speak('Error', language)
+      setIsCheffySpeaking(false)
+      setIsConversationActive(false)
       setIsFetchingGPT(false)
     }
   }
 
+  const speakingToast = () => {
+    const toastId = toast(
+      (t) => (
+        <div>
+          <div className="flex flex-col items-center justify-center">
+            <div className="justify-center text-center flex">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="blue"
+                className="w-6 h-6 animate-bounce mt-1"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"
+                />
+              </svg>
+            </div>
+            <div className="flex items-center mt-4">
+              <span className="isolate inline-flex rounded-md shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => handleStopSpeech(t.id)}
+                  className="relative -ml-px inline-flex items-center rounded-r-md rounded-l-md  bg-white px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
+                >
+                  {language === 'es-ES' ? 'Parar' : 'Dismiss'}
+                  {/* {language === 'es-ES' ? 'Borrar' : 'Dismiss'} */}
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+      }
+    )
+    return toastId
+  }
+
   const startConversation = async () => {
-    setIsConversationActive(true)
+    setIntroMessageSent(true)
+    setIsCheffySpeaking(true)
     const message = getIntroMessage(language, recipeName)
+    const toastId = speakingToast()
     await speak(message, language)
-    startListening()
+    setIsConversationActive(true)
+    resetTranscript()
+    setIsCheffySpeaking(false)
+    toast.dismiss(toastId)
   }
 
   const pauseConversation = () => {
-    stopListening()
-    return setIsConversationActive(false)
+    speechSynthesis.cancel()
+    resetTranscript()
+    setIsConversationActive(false)
+    return
   }
 
   const playConversation = () => {
     if (!isFetchingGPT) {
-      startListening()
-      return setIsConversationActive(true)
+      setIsConversationActive(true)
     }
   }
 
@@ -206,11 +319,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
     if (transcriptionResults.length === 0 && !isConversationActive) {
       return startConversation()
     }
-    if (isConversationActive && !isListening) {
-      speechSynthesis.cancel()
-      return setIsConversationActive(false)
-    }
-    return isListening ? pauseConversation() : playConversation()
+    return isConversationActive ? pauseConversation() : playConversation()
   }
 
   const startListening = () => {
@@ -231,10 +340,23 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
     setTranscriptionResults([])
   }, [])
 
+  console.log('what', finalTranscript, 'and this is my transcript', transcript)
+
   useEffect(() => {
-    if (!finalTranscript) {
+    startListening()
+  }, [])
+
+  useEffect(() => {
+    if (!isConversationActive) {
+      console.log('you shouldnt be going in here')
+      resetTranscript()
       return
     }
+    if (!finalTranscript) {
+      console.log('what the actual fuck??????')
+      return
+    }
+    console.log(' u should be going in here!')
     console.log(finalTranscript)
     setTranscriptionResults((res) => [...res, { transcript: finalTranscript }])
     resetTranscript()
@@ -298,26 +420,96 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
     <div className="bg-white">
       <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
         <div>
-          <button onClick={() => SpeechRecognition.stopListening()}> click me to stop speechtotext</button>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            {recipeName && recipeName}
-            <button
-              className={
-                !isConversationActive
-                  ? 'rounded-full  bg-blue-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600'
-                  : 'rounded-full  bg-red-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600'
-              }
-              onClick={() => toggleConversationActive()}
-            >
-              {isConversationActive
-                ? 'Pause Cooking'
-                : transcriptionResults.length !== 0
-                ? 'Resume Cooking'
-                : 'Start Cooking'}
-            </button>
-          </h2>
+          <div className="flex items-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{recipeName && recipeName}</h2>
+            {isConversationActive && introMessageSent && (
+              <audio src="/audio/start.mp3" autoPlay>
+                Your browser does not support the <code>audio</code> element.
+              </audio>
+            )}
+            {!isConversationActive && introMessageSent && !isCheffySpeaking && (
+              <audio src="/audio/stop.mp3" autoPlay>
+                Your browser does not support the <code>audio</code> element.
+              </audio>
+            )}
+
+            <p className="inline-flex">
+              <button
+                onClick={toggleConversationActive}
+                disabled={isCheffySpeaking || isFetchingGPT}
+                className={
+                  isConversationActive
+                    ? 'ml-3 rounded-full px-3.5 py-2 m-1 overflow-hidden relative group cursor-pointer border-2 font-medium border-indigo-600 text-indigo-600 animate-wave'
+                    : 'ml-3 rounded-full px-3.5 py-2 m-1 overflow-hidden relative group cursor-pointer border-2 font-medium border-red-600 text-red-600 '
+                }
+              >
+                <span
+                  className={
+                    isConversationActive
+                      ? 'absolute w-64 h-0 transition-all duration-300 origin-center rotate-45 -translate-x-20 bg-indigo-600 top-1/2 group-hover:h-64 group-hover:-translate-y-32 ease'
+                      : 'absolute w-64 h-0 transition-all duration-300 origin-center rotate-45 -translate-x-20 bg-red-600 top-1/2 group-hover:h-64 group-hover:-translate-y-32 ease'
+                  }
+                ></span>
+                <span
+                  className={
+                    isConversationActive
+                      ? 'relative text-indigo-600 transition duration-300 group-hover:text-white ease'
+                      : 'relative text-red-600 transition duration-300 group-hover:text-white ease'
+                  }
+                >
+                  {!isConversationActive ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      view-box="0 0 24 24"
+                      className="w-6 h-6"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 19L17.591 17.591L5.409 5.409L4 4" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 18.75C13.5913 18.75 15.1174 18.1179 16.2426 16.9926C17.3679 15.8674 18 14.3413 18 12.75V11.25M12 18.75C10.4087 18.75 8.88258 18.1179 7.75736 16.9926C6.63214 15.8674 6 14.3413 6 12.75V11.25M12 18.75V22.5M8.25 22.5H15.75M12 15.75C11.2044 15.75 10.4413 15.4339 9.87868 14.8713C9.31607 14.3087 9 13.5456 9 12.75V4.5C9 3.70435 9.31607 2.94129 9.87868 2.37868C10.4413 1.81607 11.2044 1.5 12 1.5C12.7956 1.5 13.5587 1.81607 14.1213 2.37868C14.6839 2.94129 15 3.70435 15 4.5V12.75C15 13.5456 14.6839 14.3087 14.1213 14.8713C13.5587 15.4339 12.7956 15.75 12 15.75Z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+                      />
+                    </svg>
+                  )}
+                </span>
+              </button>
+            </p>
+          </div>
+          {/* <button
+            className={
+              !isConversationActive
+                ? 'rounded-full  bg-blue-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600'
+                : 'rounded-full  bg-red-500 px-3.5 ml-10 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-600'
+            }
+            onClick={() => toggleConversationActive()}
+          >
+            {isConversationActive
+              ? 'Pause Cooking'
+              : transcriptionResults.length !== 0
+              ? 'Resume Cooking'
+              : 'Start Cooking'}
+          </button> */}
           <p className="text-xl font-semibold mt-5">
-            {isListening && (language === 'es-ES' ? 'Escuchando...' : 'Listening...')}
+            {isListening && (language === 'es-ES' ? 'Escuchando...' : 'Listening for commands...')}
+            {isConversationActive && 'Listening to give response'}
             {isFetchingGPT && (language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response')}
           </p>
           <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
