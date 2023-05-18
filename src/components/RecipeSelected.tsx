@@ -12,6 +12,9 @@ import UseAnimations from 'react-useanimations'
 import microphone2 from 'react-useanimations/lib/microphone2'
 import SilencedMicrophone from '/mic_silenced.svg'
 import useSound from 'use-sound'
+import GoogleCloudSpeechRecognition from '../functions/GoogleCloudPolyfill3'
+
+// SpeechRecognition.applyPolyfill(GoogleCloudSpeechRecognition)
 
 const timerToast = () =>
   toast.custom(
@@ -46,29 +49,6 @@ const fetchImage = async (recipeName: string) => {
 
   const data = await res.json()
   return data.base64
-}
-
-const fetchRecipeName = async (recipeInfo) => {
-  try {
-    const response = await fetch('/api/recipeName', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        recipeInfo: recipeInfo,
-      }),
-    })
-
-    const data = await response.json()
-    if (response.status !== 200) {
-      throw data.error || new Error(`Request failed with status ${response.status}`)
-    }
-    return data.result
-  } catch (error) {
-    toast.error('Something went wrong generating your recipee. Try again later or contact support.')
-    return console.log('My error is:', error)
-  }
 }
 
 const fetchGPTResponse = async ({
@@ -126,20 +106,35 @@ const getIntroMessage = (language: string, recipeName: string) => {
   }
 }
 
-export default function Recipe({ ingredients, steps, recipeInfo, language, userId }) {
+export default function Recipe({ ingredients, steps, recipeInfo, language, userId, recipeName, recipeCookingTime }) {
   const [base64, setBase64] = useState('')
   const [gptResults, setGptResults] = useState([])
   const [isFetchingGPT, setIsFetchingGPT] = useState(false)
   const [isConversationActive, setIsConversationActive] = useState(false)
   const [introMessageSent, setIntroMessageSent] = useState(false)
-  const [recipeName, setRecipeName] = useState(null)
   const [minutes, setMinutes] = useState({})
   const [transcriptionResults, setTranscriptionResults] = useState([])
   const [isCheffySpeaking, setIsCheffySpeaking] = useState(false)
+  const [commandFound, setCommandFound] = useState(false)
 
   const handleOkayCheffy = () => {
     resetTranscript()
     setIsConversationActive(true)
+  }
+
+  const handleTimersCommand = async (minutes) => {
+    console.log('those are my mins lol', minutes)
+    if (isNaN(minutes)) {
+      console.log('lmaoXD', minutes)
+      resetTranscript()
+      return
+    }
+    setCommandFound(true)
+    handleTimers(minutes * 60, 'en-US')
+    setIsConversationActive(false)
+    await speak(`${minutes} minutes timer set!`, 'en-US')
+    resetTranscript()
+    setCommandFound(false)
   }
 
   const commands = [
@@ -163,8 +158,14 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
       callback: () => pauseConversation(),
     },
     {
-      command: 'Hello',
-      callback: () => speak('Hello there!', 'en-US'),
+      command: [
+        ':minutes minutes',
+        'set :minutes minutes timer',
+        'put :minutes minutes timer',
+        ':minutes minute timer',
+        ':minutes minutes timer',
+      ],
+      callback: (minutes) => handleTimersCommand(minutes),
     },
   ]
 
@@ -195,13 +196,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
   const generateImage = async (recipeName) => {
     const base64Data = await fetchImage(recipeName)
     setBase64(base64Data)
-  }
-
-  async function generateRecipeName(recipeInfo) {
-    const recipeName = await fetchRecipeName(recipeInfo)
-    if (recipeName) {
-      setRecipeName(recipeName)
-    }
   }
 
   async function generateGptResponse(questions) {
@@ -257,13 +251,13 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke-width="1.5"
+                strokeWidth="1.5"
                 stroke="blue"
                 className="w-6 h-6 animate-bounce mt-1"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"
                 />
               </svg>
@@ -356,6 +350,9 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
       console.log('what the actual fuck??????')
       return
     }
+    if (commandFound) {
+      return
+    }
     console.log(' u should be going in here!')
     console.log(finalTranscript)
     setTranscriptionResults((res) => [...res, { transcript: finalTranscript }])
@@ -391,10 +388,6 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
   }, [listening])
 
   useEffect(() => {
-    if (recipeInfo) {
-      generateRecipeName(recipeInfo)
-    }
-
     return () => {
       speechSynthesis.cancel()
     }
@@ -421,7 +414,9 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
       <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-x-8 gap-y-16 px-4 py-24 sm:px-6 sm:py-32 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
         <div>
           <div className="flex items-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{recipeName && recipeName}</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              {recipeName && recipeName}
+            </h2>
             {isConversationActive && introMessageSent && (
               <audio src="/audio/start.mp3" autoPlay>
                 Your browser does not support the <code>audio</code> element.
@@ -462,14 +457,14 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       stroke="currentColor"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       view-box="0 0 24 24"
                       className="w-6 h-6"
                     >
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 19L17.591 17.591L5.409 5.409L4 4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 19L17.591 17.591L5.409 5.409L4 4" />
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M12 18.75C13.5913 18.75 15.1174 18.1179 16.2426 16.9926C17.3679 15.8674 18 14.3413 18 12.75V11.25M12 18.75C10.4087 18.75 8.88258 18.1179 7.75736 16.9926C6.63214 15.8674 6 14.3413 6 12.75V11.25M12 18.75V22.5M8.25 22.5H15.75M12 15.75C11.2044 15.75 10.4413 15.4339 9.87868 14.8713C9.31607 14.3087 9 13.5456 9 12.75V4.5C9 3.70435 9.31607 2.94129 9.87868 2.37868C10.4413 1.81607 11.2044 1.5 12 1.5C12.7956 1.5 13.5587 1.81607 14.1213 2.37868C14.6839 2.94129 15 3.70435 15 4.5V12.75C15 13.5456 14.6839 14.3087 14.1213 14.8713C13.5587 15.4339 12.7956 15.75 12 15.75Z"
                       />
                     </svg>
@@ -478,13 +473,13 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       className="w-6 h-6"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
                       />
                     </svg>
@@ -508,16 +503,16 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
               : 'Start Cooking'}
           </button> */}
           <p className="text-xl font-semibold mt-5">
-            {isListening && (language === 'es-ES' ? 'Escuchando...' : 'Listening for commands...')}
+            {/* {isListening && (language === 'es-ES' ? 'Escuchando...' : 'Listening for commands...')}
             {isConversationActive && 'Listening to give response'}
-            {isFetchingGPT && (language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response')}
+            {isFetchingGPT && (language === 'es-ES' ? 'Obteniendo respuesta' : 'Getting response')} */}
           </p>
           <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
             <div className="border-t border-gray-200 pt-4">
               <dt className="font-medium text-gray-900">{language === 'es-ES' ? 'Ingredientes' : 'Ingredients'}</dt>
               {/*  */}
-              {ingredients.map((ingredient) => (
-                <dd key={ingredient} className="mt-2 text-sm text-gray-500">
+              {ingredients.map((ingredient, index) => (
+                <dd key={index} className="mt-2 text-sm text-gray-500">
                   {ingredient}
                 </dd>
               ))}
@@ -533,7 +528,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
                 const handleClick = minutes[step] !== null ? () => handleTimers(minutes[step] * 60, language) : () => {}
                 return minutes[step] !== null ? (
                   <Tooltip
-                    key={step}
+                    key={index}
                     content={`Click to set a ${minutes[step]} minutes timer`}
                     className="inline-flex items-center rounded border border-transparent bg-[#304483] px-2.5 py-0.5 text-xs font-medium text-white shadow-sm "
                     animate={{
@@ -546,7 +541,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
                     </dd>
                   </Tooltip>
                 ) : (
-                  <dd onClick={handleClick} key={step} className={className}>
+                  <dd onClick={handleClick} key={index} className={className}>
                     {step}
                     {minutes[step]}
                   </dd>
@@ -559,7 +554,7 @@ export default function Recipe({ ingredients, steps, recipeInfo, language, userI
           {base64 ? (
             <img alt="recipePhoto" src={'data:image/png;base64,' + base64} className="rounded-lg bg-gray-100" />
           ) : (
-            <Loader cooking={true} />
+            <Loader cooking={true} language={language} />
           )}
         </div>
       </div>

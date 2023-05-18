@@ -12,6 +12,7 @@ import { useUser } from '@supabase/auth-helpers-react'
 import { toast } from 'react-hot-toast'
 import getFirstTwoChars from '../functions/firstTwoChars'
 import { track } from '@amplitude/analytics-node'
+import ModalRecipes from '../components/ModalRecipes'
 
 const RecipeSelection = dynamic(() => import('../components/RecipeSelected'), {
   ssr: false,
@@ -137,14 +138,14 @@ export default function Home({ supabaseClient, session }) {
     setSelectedCheckboxSystem(event.target.value)
   }
 
-  async function handleSubmitButton(query) {
-    if (query.length < 5) {
-      return alert(
-        language === 'es-ES'
-          ? 'Su solicitud debe tener al menos 5 caracteres.'
-          : 'Your request must have at least 5 characters.'
-      )
-    }
+  async function handleCookRecipe(recipeName, language, system, userId) {
+    // if (query.length < 5) {
+    //   return alert(
+    //     language === 'es-ES'
+    //       ? 'Su solicitud debe tener al menos 5 caracteres.'
+    //       : 'Your request must have at least 5 characters.'
+    //   )
+    // }
     try {
       setGettingResponse(true)
       const response = await fetch('/api/singleRecipe', {
@@ -153,12 +154,10 @@ export default function Home({ supabaseClient, session }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: query,
+          recipeName: recipeName,
           language: language,
           system: system,
-          username: trueUsername,
           userId: session?.user?.id,
-          event: 'UserGeneratedRecipe',
         }),
       })
 
@@ -178,12 +177,80 @@ export default function Home({ supabaseClient, session }) {
     }
   }
 
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [recipes, setRecipes] = useState([])
+  const [open, setOpen] = useState(false)
+  const [selectedRecipe, setSelectedRecipe] = useState(null)
 
-  // Function to toggle the state
-  const toggleAudio = () => {
-    setIsPlaying(!isPlaying)
+  async function handleSubmitButton(query) {
+    if (query.length < 5) {
+      return alert(
+        language === 'es-ES'
+          ? 'Su solicitud debe tener al menos 5 caracteres.'
+          : 'Your request must have at least 5 characters.'
+      )
+    }
+    try {
+      setGettingResponse(true)
+      setRecipes([])
+      setSelectedRecipe(null)
+      const trueLanguage = language === 'es-ES' ? 'spanish' : 'english'
+      const response = await fetch(`/api/testingStream?query=${query}&language=${trueLanguage}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: query,
+        }),
+      })
+      setOpen(true)
+      const reader = response.body.getReader() // Create a readable stream reader
+
+      let chunk = ''
+      let lines = []
+
+      while (true) {
+        const { done, value } = await reader.read()
+
+        if (done) {
+          break
+        }
+
+        chunk += new TextDecoder().decode(value)
+
+        // Check if the chunk contains a complete line
+        while (chunk.includes('\n')) {
+          const index = chunk.indexOf('\n')
+          const line = chunk.slice(0, index)
+          chunk = chunk.slice(index + 1)
+
+          // Parse the line and update the state with the new recipe
+          if (/^\d+\.\s/.test(line)) {
+            const recipeData = line.match(/^(\d+)\.\s(.*)\s-\s(.*)$/)
+
+            if (recipeData && recipeData.length === 4) {
+              const recipe = {
+                recipeName: recipeData[2],
+                cookingTime: recipeData[3],
+              }
+
+              setRecipes((prevRecipes) => [...prevRecipes, recipe])
+            }
+          }
+        }
+        setGettingResponse(false)
+      }
+    } catch (error) {
+      // Handle the error
+      setOpen(false)
+      setGettingResponse(false)
+      console.log(error.message)
+    }
   }
+
+  useEffect(() => {
+    console.log('recipes', recipes)
+  }, [recipes])
 
   return (
     <div>
@@ -192,6 +259,8 @@ export default function Home({ supabaseClient, session }) {
       </Head>
       {recipe ? (
         <RecipeSelection
+          recipeName={recipes[selectedRecipe].recipeName}
+          recipeCookingTime={recipes[selectedRecipe].cookingTime}
           userId={session?.user?.id}
           ingredients={recipe.ingredients}
           steps={recipe.instructions}
@@ -442,12 +511,24 @@ export default function Home({ supabaseClient, session }) {
               Help me choose a recipe
             </button>
           </Link> */}
+            <ModalRecipes
+              query={query}
+              open={open}
+              setOpen={setOpen}
+              selectedRecipe={selectedRecipe}
+              handleCookRecipe={handleCookRecipe}
+              userId={session?.user?.id}
+              setSelectedRecipe={setSelectedRecipe}
+              recipes={recipes}
+              system={system}
+              language={language}
+            />
             {language && (
               <MainBox
                 language={language}
                 query={query}
                 setQuery={setQuery}
-                handleSubmitButton={handleSubmitButton}
+                handleSubmitButton={() => handleSubmitButton(query)}
                 setGettingResponse={setGettingResponse}
                 gettingResponse={gettingResponse}
               />

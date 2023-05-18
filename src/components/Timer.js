@@ -19,6 +19,12 @@ export default function Timer({ time, toastId, language }) {
     setRemainingTime(duration)
   }
 
+  const handleDismiss = (toastId) => {
+    setRemainingTime(Infinity)
+    toast.dismiss(toastId)
+    return
+  }
+
   const finish = () => {
     toast.dismiss(toastId)
     speak(language === 'es-ES' ? 'Se ha acabado tu timer' : 'Your timer finished', language)
@@ -78,7 +84,7 @@ export default function Timer({ time, toastId, language }) {
             </button> */}
             <button
               type="button"
-              onClick={() => toast.dismiss(toastId)}
+              onClick={() => handleDismiss(toastId)}
               className="relative -ml-px inline-flex items-center rounded-r-md bg-white px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
             >
               {language === 'es-ES' ? 'Borrar' : 'Dismiss'}

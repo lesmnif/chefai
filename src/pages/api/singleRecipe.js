@@ -16,61 +16,39 @@ export default async function (req, res) {
     return
   }
 
-  const query = req.body.query || []
+  const recipeName = req.body.recipeName || []
   const language = req.body.language || 'en-US'
-  const username = req.body.username || ''
-  const system = req.body.system || ''
-  const event = req.body.event
+  const system = req.body.system || 'imperial'
+  const event = 'UserGeneratedRecipe'
   const userId = req.body.userId
-  if (query.length < 5) {
-    res.status(400).json({
-      error: {
-        message: 'Please enter at least a 5 characters recipe',
-      },
-    })
-    return
-  }
+
 
   const messages =
     language === 'es-ES'
       ? [
           {
             role: 'system',
-            content: `You MUST give me a recipe from a sentence. And you MUST respond in Spanish.`,
+            content: `You MUST give me a recipe for ${recipeName}. And you MUST respond in Spanish.`,
           },
           {
             role: 'user',
-            content: `Mi nombre es ${username}. DEBES darme una receta de una oración, dándole un nombre, ingredientes e instrucciones. Siempre DEBES dar los ingredientes y las instrucciones con la palabra seguida de ":" como "Ingredientes:". Tienes que darme los ingredientes en unidades ${
+            content: `DEBES darme una receta de ${recipeName} con ingredientes e instrucciones. Siempre DEBES dar los ingredientes y las instrucciones con la palabra seguida de ":" como "Ingredientes:". Tienes que darme los ingredientes en unidades ${
               system === 'imperial' ? 'imperiales' : 'métricas'
             }. DEBES añadir el paso de cortar los ingredientes en el correspondiente lugar de las instrucciones.`,
-          },
-          {
-            role: 'assistant',
-            content: `De acuerdo. Cuál es la frase?`,
-          },
-          {
-            role: 'user',
-            content: query,
           },
         ]
       : [
           {
             role: 'system',
-            content: `You MUST give me a recipe from a sentence.`,
+            content: `You MUST give me a recipe for ${recipeName}.`,
           },
           {
             role: 'user',
-            content: `My name is ${username}. You MUST give me a recipe from one sentence, giving it a name, ingredients and instructions. You MUST always give the ingredients and instructions with the word followed by ":" like "Ingredients:". You MUST give me the ingredients in ${system} units. You MUST add the chopping/cutting of the ingredientes in the following place in the instructions.`,
-          },
-          {
-            role: 'assistant',
-            content: `Understood. What's the sentence ?`,
-          },
-          {
-            role: 'user',
-            content: query,
+            content: `You MUST give me a recipe for ${recipeName}, giving it a name, ingredients and instructions. You MUST always give the ingredients and instructions with the word followed by ":" like "Ingredients:". You MUST give me the ingredients in ${system} units. You MUST add the chopping/cutting of the ingredientes in the following place in the instructions.`,
           },
         ]
+
+  console.log(messages)
 
   try {
     const completion = await openai.createChatCompletion({

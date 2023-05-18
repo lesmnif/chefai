@@ -7,17 +7,30 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function ModalRecipes({ open, setOpen, recipes, language, selectedRecipe, setSelectedRecipe }) {
-
+export default function ModalRecipes({
+  userId,
+  system,
+  open,
+  setOpen,
+  recipes,
+  language,
+  selectedRecipe,
+  handleCookRecipe,
+  setSelectedRecipe,
+  query,
+}) {
   const handleStartCooking = () => {
-    if(!selectedRecipe){
-      return toast.error(language === "es-ES" ? "Debes selecionar una receta": "You must select a recipe")
+    if (!selectedRecipe && selectedRecipe !== 0) {
+      return toast.error(language === 'es-ES' ? 'Debes selecionar una receta' : 'You must select a recipe')
     }
+    console.log(recipes[selectedRecipe].recipeName)
+    const recipeName = recipes[selectedRecipe].recipeName
+    handleCookRecipe(recipeName, language, system, userId)
   }
 
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={setOpen} >
+      <Dialog as="div" className="relative z-10" onClose={setOpen}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -45,16 +58,15 @@ export default function ModalRecipes({ open, setOpen, recipes, language, selecte
                 <div>
                   <div className="mx-auto flex items-center justify-center">
                     <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900 text-center">
-                      Here are some recipe ideas, choose one!{' '}
-                      <p className=" font-normal mt-4">
-                        {' '}
-                        I'm trying to incorporate more seafood into my diet and need some recipe ideas.
-                      </p>
+                      {language === 'es-ES'
+                        ? 'Aquí tienes un par de recetas, escoge una! '
+                        : 'Here are some recipe ideas, choose one!'}{' '}
+                      <p className=" font-normal mt-4"> {query}</p>
                     </Dialog.Title>
                   </div>
                   {recipes.length !== 4 && (
                     <p className="flex text-center items-center justify-center mt-5">
-                      <Loader />
+                      <Loader language={language} />
                     </p>
                   )}
                   <div className="mt-3 text-center sm:mt-5 ">
@@ -85,16 +97,16 @@ export default function ModalRecipes({ open, setOpen, recipes, language, selecte
                       <button
                         type="button"
                         className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
-                        onClick={() => setOpen(false)}
+                        onClick={() => handleStartCooking()}
                       >
-                        Start Cooking
+                        {language === "es-ES" ? "Empezar a cocinar" : "Start Cooking"}
                       </button>
                       <button
                         type="button"
                         className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
                         onClick={() => setOpen(false)}
                       >
-                        Try another idea
+                        {language === "es-ES" ? "Probar otra idea" : "Try another idea"}
                       </button>
                     </div>
                   )}

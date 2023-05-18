@@ -1,10 +1,14 @@
-export default function Loader({cooking}) {
+export default function Loader({ cooking, language }) {
   return (
     <div className="flex">
       <svg
         aria-hidden="true"
         role="status"
-        className={cooking ? "inline w-24 h-24 text-gray-200 animate-spin dark:text-gray-600": "inline w-5 h-5 mt-0.5 mr-3 text-gray-200 animate-spin dark:text-gray-600"}
+        className={
+          cooking
+            ? 'inline w-24 h-24 text-gray-200 animate-spin dark:text-gray-600'
+            : 'inline w-5 h-5 mt-0.5 mr-3 text-gray-200 animate-spin dark:text-gray-600'
+        }
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +22,7 @@ export default function Loader({cooking}) {
           fill="#1C64F2"
         />
       </svg>
-      {!cooking && "Loading..."}
+      {!cooking && (language === 'es-ES' ? 'Cargando...' : 'Loading...')}
     </div>
   )
 }
