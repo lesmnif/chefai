@@ -51,5 +51,5 @@ export default function getRandomRecipeQuery(language) {
   ]
 
   const randomIndex = Math.floor(Math.random() * recipeQueries.length)
-  return language === "es" ? recipeQueriesEs[randomIndex] : recipeQueries[randomIndex]
+  return language === "es-ES" ? recipeQueriesEs[randomIndex] : recipeQueries[randomIndex]
 }

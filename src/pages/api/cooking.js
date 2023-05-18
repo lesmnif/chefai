@@ -20,10 +20,10 @@ export default async function (req, res) {
   const gptResponses = req.body.gptResponses || []
   const recipeName = req.body.recipeName
   const steps = req.body.steps || []
-  const language = req.body.language || 'en'
+  const language = req.body.language || 'en-US'
   const event = req.body.event
   const userId = req.body.userId
-  
+
   if (questions.length === 0) {
     res.status(400).json({
       error: {
@@ -79,17 +79,18 @@ export default async function (req, res) {
         })
   })
   try {
+    console.log('Calling OpenAI with prompt', messages)
     const completion = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: messages,
       frequency_penalty: 0,
       presence_penalty: 0,
-      max_tokens: 200,
+      max_tokens: 100,
       top_p: 1,
       temperature: 0.7,
     })
     track(
-      event,
+      'UserSentMessage',
       {
         language: language,
       },

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { speak } from '../functions/text-to-speech'
 
 export default function Timer({ time, toastId, language }) {
   const duration = time
@@ -18,9 +19,15 @@ export default function Timer({ time, toastId, language }) {
     setRemainingTime(duration)
   }
 
+  const handleDismiss = (toastId) => {
+    setRemainingTime(Infinity)
+    toast.dismiss(toastId)
+    return
+  }
+
   const finish = () => {
     toast.dismiss(toastId)
-    toast.success('Timer finished!')
+    speak(language === 'es-ES' ? 'Se ha acabado tu timer' : 'Your timer finished', language)
   }
 
   const children = ({ remainingTime }) => {
@@ -66,7 +73,7 @@ export default function Timer({ time, toastId, language }) {
               className="relative inline-flex items-center rounded-l-md bg-white px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
               onClick={handlePause}
             >
-              {isPaused ? (language === 'es' ? 'Reproducir' : 'Resume') : language === 'es' ? 'Pausa' : 'Pause'}
+              {isPaused ? (language === 'es-ES' ? 'Reproducir' : 'Resume') : language === 'es-ES' ? 'Pausa' : 'Pause'}
             </button>
             {/* <button
               type="button"
@@ -77,10 +84,10 @@ export default function Timer({ time, toastId, language }) {
             </button> */}
             <button
               type="button"
-              onClick={() => toast.dismiss(toastId)}
+              onClick={() => handleDismiss(toastId)}
               className="relative -ml-px inline-flex items-center rounded-r-md bg-white px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
             >
-              {language === 'es' ? 'Borrar' : 'Dismiss'}
+              {language === 'es-ES' ? 'Borrar' : 'Dismiss'}
             </button>
           </span>
         </div>
