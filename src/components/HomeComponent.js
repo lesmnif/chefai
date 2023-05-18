@@ -13,6 +13,7 @@ import { toast } from 'react-hot-toast'
 import getFirstTwoChars from '../functions/firstTwoChars'
 import { track } from '@amplitude/analytics-node'
 import ModalRecipes from '../components/ModalRecipes'
+import ModalGettingRecipe from '../components/ModalGettingRecipe'
 
 const RecipeSelection = dynamic(() => import('../components/RecipeSelected'), {
   ssr: false,
@@ -36,6 +37,7 @@ export default function Home({ supabaseClient, session }) {
   const [selectedCheckboxLanguage, setSelectedCheckboxLanguage] = useState(null)
   const [selectedCheckboxSystem, setSelectedCheckboxSystem] = useState(null)
   const [username, setUsername] = useState('')
+  const [generatingRecipe, setGeneratingRecipe] = useState(false)
 
   console.log('here', language, system)
 
@@ -147,7 +149,8 @@ export default function Home({ supabaseClient, session }) {
     //   )
     // }
     try {
-      setGettingResponse(true)
+      setGeneratingRecipe(true)
+      setOpen(false)
       const response = await fetch('/api/singleRecipe', {
         method: 'POST',
         headers: {
@@ -168,9 +171,10 @@ export default function Home({ supabaseClient, session }) {
       console.log('Everything went smoothly!', data.result)
       const recipe = ParseRecipe(data.result, language)
       setRecipeInfo(data.result)
+      setGeneratingRecipe(false)
       setRecipe(recipe)
     } catch (error) {
-      setGettingResponse(false)
+      setGeneratingRecipe(false)
       // Consider implementing your own error handling logic here
       console.log(error.message)
       // alert(error.message)
@@ -274,12 +278,12 @@ export default function Home({ supabaseClient, session }) {
               <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
                 <div className="flex lg:flex-1">
                   {' '}
-                  <Link
+                  {/* <Link
                     href={language === 'es-ES' ? '/pricing/es-ES' : '/pricing/en-US'}
                     className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-500"
                   >
                     {language === 'es-ES' ? 'Suscríbete' : 'Subscribe'}
-                  </Link>
+                  </Link> */}
                 </div>
                 <div className="flex justify-end">
                   <button
@@ -511,12 +515,14 @@ export default function Home({ supabaseClient, session }) {
               Help me choose a recipe
             </button>
           </Link> */}
+            <ModalGettingRecipe open={generatingRecipe} setOpen={setGeneratingRecipe} />
             <ModalRecipes
               query={query}
               open={open}
               setOpen={setOpen}
               selectedRecipe={selectedRecipe}
               handleCookRecipe={handleCookRecipe}
+              generatingRecipe={generatingRecipe}
               userId={session?.user?.id}
               setSelectedRecipe={setSelectedRecipe}
               recipes={recipes}

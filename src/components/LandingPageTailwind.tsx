@@ -57,12 +57,12 @@ export default function Landing({ supabaseClient, session }) {
       <header className="absolute inset-x-0 top-0 z-50">
         <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
           <div className="flex lg:flex-1">
-            <Link
+            {/* <Link
               href={language === 'es' ? '/pricing/es-ES' : '/pricing/en-US'}
               className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-500"
             >
-              {/* {language === 'es' ? 'Suscríbete' : 'Subscribe'} */}
-            </Link>
+              {language === 'es' ? 'Suscríbete' : 'Subscribe'}
+            </Link> */}
           </div>
           <div className="lg:flex lg:flex-1 lg:justify-end">
             <Link href="/signin" className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-500">
