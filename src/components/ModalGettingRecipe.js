@@ -10,9 +10,13 @@ function classNames(...classes) {
 export default function ModalRecipes({ open, setOpen }) {
   const language = 'es-ES'
 
+  const handleModalClose = () => {
+    // Do nothing when called
+  }
+
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={setOpen}>
+      <Dialog as="div" className="relative z-10" onClose={handleModalClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
